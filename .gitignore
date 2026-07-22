@@ -1,0 +1,28 @@
+# 依赖与构建产物
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 本地数据与环境
+backend-python/app.db
+.env
+.env.local
+
+# 设计稿与图片资源（体积较大，不纳入仓库）
+picture/
+docs/design-mockups/
+docs/ui-mockups/
+
+# 工具与临时目录
+.playwright-mcp/
+.superpowers/
+.agents/
+.claude/
+
+# 编辑器与操作系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

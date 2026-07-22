@@ -1,0 +1,2 @@
+"""Pydantic Schema 包。"""
+
