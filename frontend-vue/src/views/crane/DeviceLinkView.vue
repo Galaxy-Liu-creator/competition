@@ -130,7 +130,8 @@ const history = ref([
 onMounted(async () => {
   try {
     const res = await deviceLinkApi.list({ crane: 'CR-8012' })
-    if (res?.list?.length) history.value = res.list
+    // 后端返回的是按吊车分组的关联关系,仅当结构含历史字段时才替换演示数据
+    if (res?.list?.length && res.list[0]?.time) history.value = res.list
   } catch { /* 回退演示数据 */ }
 })
 </script>
@@ -145,7 +146,9 @@ onMounted(async () => {
 .hs span { font-size: 11px; color: var(--qa-text-2); }
 .hs b { font-size: 20px; }
 
-.grid3 { display: grid; grid-template-columns: 280px minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: 280px minmax(0, 1fr) 300px; gap: 14px; align-items: stretch; }
+.grid3 > .panel { display: flex; flex-direction: column; }
+.grid3 > .panel :deep(.body) { flex: 1; }
 .mb { margin-bottom: 12px; }
 .pool { display: flex; flex-direction: column; gap: 10px; }
 .pool-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; text-align: left; cursor: pointer;

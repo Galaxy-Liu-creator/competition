@@ -4,17 +4,19 @@
       <!-- 左:设备池 -->
       <IndustrialPanel title="设备池" class="pool">
         <template #extra><el-icon><Search /></el-icon></template>
-        <el-input v-model="poolKw" placeholder="搜索设备 ID / 名称..." size="small" class="pool-search" />
-        <div class="group-title">吊车 (CRANES) <b>{{ cranes.length }}</b></div>
-        <div v-for="c in cranes" :key="c.id" class="pool-item crane" :class="{ active: c.id === current.id }" @click="selectCrane(c)">
+        <el-input v-model="poolKw" placeholder="搜索设备 ID / 名称..." size="small" class="pool-search" clearable />
+        <div class="group-title">吊车 (CRANES) <b>{{ filteredCranes.length }}</b></div>
+        <div v-for="c in filteredCranes" :key="c.id" class="pool-item crane" :class="{ active: c.id === current.id }" @click="selectCrane(c)">
           <el-icon><Tools /></el-icon><span>{{ c.name }}</span>
           <i class="status-dot" :class="c.online ? 'c-success' : 'c-danger'" />
         </div>
-        <div class="group-title">音柱 (SPEAKERS) <b>{{ speakers.length }}</b></div>
-        <label v-for="s in speakers" :key="s.id" class="pool-item spk" :class="{ checked: picked.includes(s.id) }">
+        <p v-if="!filteredCranes.length" class="pool-empty">无匹配吊车</p>
+        <div class="group-title">音柱 (SPEAKERS) <b>{{ filteredSpeakers.length }}</b></div>
+        <label v-for="s in filteredSpeakers" :key="s.id" class="pool-item spk" :class="{ checked: picked.includes(s.id) }">
           <el-checkbox :model-value="picked.includes(s.id)" @change="togglePick(s.id)" />
           <el-icon><Bell /></el-icon><span>{{ s.name }}</span>
         </label>
+        <p v-if="!filteredSpeakers.length" class="pool-empty">无匹配音柱</p>
         <el-button type="primary" class="batch-btn" :disabled="!picked.length" @click="doLink">
           <el-icon><Connection /></el-icon>&nbsp;批量关联(已选 {{ picked.length }})
         </el-button>
@@ -27,7 +29,10 @@
           <div class="grid-bg" />
           <div class="center-node"><el-icon><Tools /></el-icon><label>{{ current.name }}</label></div>
           <div class="linked-row">
-            <div v-for="s in linkedSpeakers" :key="s.id" class="node spk"><el-icon><Bell /></el-icon><label>{{ s.name }}</label></div>
+            <div v-for="s in linkedSpeakers" :key="s.id" class="node spk">
+              <i class="unlink" title="解除关联" @click.stop="unlink(s)">✕</i>
+              <el-icon><Bell /></el-icon><label>{{ s.name }}</label>
+            </div>
           </div>
           <div v-if="pendingSpeaker" class="node pending"><el-icon><Bell /></el-icon><label>待关联 {{ pendingSpeaker.name }}</label></div>
           <p v-if="!linkedSpeakers.length && !pendingSpeaker" class="empty-hint">暂无关联音柱,请在左侧勾选后批量关联</p>
@@ -46,7 +51,7 @@
         <el-checkbox v-model="triggers.wind">大风报警 (High Wind)</el-checkbox>
         <el-checkbox v-model="triggers.fence">越界报警 (Geofence)</el-checkbox>
         <div class="p-actions">
-          <el-button @click="ElMessage.success('已发起播报试听')">◎ 播放试听</el-button>
+          <el-button :loading="playing" @click="playPreview">{{ playing ? '播报中…' : '◎ 播放试听' }}</el-button>
           <el-button type="primary" @click="applyConfig">应用关联配置</el-button>
         </div>
       </IndustrialPanel>
@@ -54,7 +59,7 @@
 
     <!-- 底:关联历史 -->
     <IndustrialPanel title="关联历史">
-      <template #extra><a>导出记录</a></template>
+      <template #extra><a class="export-link" @click="onExportHistory">导出记录</a></template>
       <el-table :data="history" height="200">
         <el-table-column prop="time" label="操作时间" width="180"><template #default="{ row }"><span class="mono">{{ row.time }}</span></template></el-table-column>
         <el-table-column prop="operator" label="操作人" width="160" />
@@ -71,7 +76,13 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Tools, Bell, Connection } from '@element-plus/icons-vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
-import { speakerLinkApi } from '@/api'
+import { configApi } from '@/api'
+import { exportExcel } from '@/utils/exportExcel'
+
+// 本页为演示型本地数据模型:关联关系/配置/历史均持久化到 localStorage
+const LINKS_KEY = 'qa-speaker-links'
+const CONFIG_KEY = 'qa-speaker-link-config'
+const HISTORY_KEY = 'qa-speaker-link-history'
 
 const poolKw = ref('')
 const cranes = ref([
@@ -88,29 +99,119 @@ const current = ref(cranes.value[1])
 const picked = ref(['SPK-045'])
 const prio = ref(1)
 const triggers = reactive({ overload: true, wind: true, fence: false })
-const links = reactive({ 'CR-12': ['SPK-001'] })
+const links = reactive({ 'CR-08': ['SPK-112'], 'CR-12': ['SPK-001', 'SPK-045'], 'CR-15': ['SPK-045'] })
+const configs = reactive({})
+const playing = ref(false)
 
 const history = ref([
-  { time: '2023-10-27 14:22:09', operator: '管理员 (Admin)', action: '建立关联', detail: 'CR-12-Tower ↔ SPK-Z1-001 (优先级 3)', ok: true },
-  { time: '2023-10-27 14:30:12', operator: '管理员 (Admin)', action: '建立关联', detail: 'CR-12-Tower ↔ SPK-Z1-010 (优先级 3)', ok: true },
-  { time: '2023-10-27 09:15:00', operator: '系统任务', action: '解除关联', detail: 'CR-08-Heavy ↔ SPK-Z2-099 (设备离线)', ok: false },
+  { time: '2026-07-20 14:22:09', operator: '管理员 (Admin)', action: '建立关联', detail: 'CR-12-Tower ↔ SPK-Z1-001 (优先级 L3)', ok: true },
+  { time: '2026-07-20 14:30:12', operator: '管理员 (Admin)', action: '建立关联', detail: 'CR-12-Tower ↔ SPK-Z1-045 (优先级 L3)', ok: true },
+  { time: '2026-07-20 09:15:00', operator: '系统任务', action: '解除关联', detail: 'CR-08-Heavy ↔ SPK-Z2-099 (设备离线)', ok: false },
 ])
+
+const kwMatch = (item) => {
+  const kw = poolKw.value.trim().toLowerCase()
+  return !kw || `${item.id} ${item.name}`.toLowerCase().includes(kw)
+}
+const filteredCranes = computed(() => cranes.value.filter(kwMatch))
+const filteredSpeakers = computed(() => speakers.value.filter(kwMatch))
 
 const linkedSpeakers = computed(() => (links[current.value.id] || []).map(id => speakers.value.find(s => s.id === id)).filter(Boolean))
 const pendingSpeaker = computed(() => { const id = picked.value.find(p => !(links[current.value.id] || []).includes(p)); return id ? speakers.value.find(s => s.id === id) : null })
 
-function selectCrane(c) { current.value = c; picked.value = [] }
+// ---------- 本地持久化 ----------
+function readJson(key) {
+  try { return JSON.parse(localStorage.getItem(key)) } catch { return null }
+}
+function persist() {
+  localStorage.setItem(LINKS_KEY, JSON.stringify(links))
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(configs))
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.value.slice(0, 100)))
+}
+function restore() {
+  const savedLinks = readJson(LINKS_KEY)
+  if (savedLinks) Object.assign(links, savedLinks)
+  const savedConfigs = readJson(CONFIG_KEY)
+  if (savedConfigs) Object.assign(configs, savedConfigs)
+  const savedHistory = readJson(HISTORY_KEY)
+  if (Array.isArray(savedHistory) && savedHistory.length) history.value = savedHistory
+}
+
+function pushHistory(action, detail, ok = true) {
+  history.value.unshift({ time: new Date().toLocaleString('zh-CN', { hour12: false }), operator: '管理员 (Admin)', action, detail, ok })
+  persist()
+}
+
+function loadCraneConfig() {
+  const cfg = configs[current.value.id]
+  prio.value = cfg?.prio ?? 1
+  Object.assign(triggers, { overload: true, wind: true, fence: false, ...(cfg?.triggers || {}) })
+}
+
+function selectCrane(c) { current.value = c; picked.value = []; loadCraneConfig() }
 function togglePick(id) { const i = picked.value.indexOf(id); i > -1 ? picked.value.splice(i, 1) : picked.value.push(id) }
 
-async function doLink() {
-  try { for (const sid of picked.value) await speakerLinkApi.create({ crane_id: current.value.id, speaker_id: sid }) } catch { /* 演示忽略 */ }
+function doLink() {
+  const names = picked.value.map(id => speakers.value.find(s => s.id === id)?.name || id)
   links[current.value.id] = Array.from(new Set([...(links[current.value.id] || []), ...picked.value]))
-  history.value.unshift({ time: new Date().toLocaleString('zh-CN'), operator: '管理员 (Admin)', action: '建立关联', detail: `${current.value.name} ↔ ${picked.value.join('、')}`, ok: true })
+  pushHistory('建立关联', `${current.value.name} ↔ ${names.join('、')} (优先级 L${prio.value})`)
   ElMessage.success(`已关联 ${picked.value.length} 个音柱`)
   picked.value = []
 }
-function applyConfig() { ElMessage.success(`已应用关联配置(优先级 L${prio.value})`) }
-onMounted(async () => { try { const r = await speakerLinkApi.list({ page: 1, page_size: 20 }); if (r.list?.length) history.value = r.list } catch { /* keep demo */ } })
+
+function unlink(speaker) {
+  links[current.value.id] = (links[current.value.id] || []).filter(id => id !== speaker.id)
+  pushHistory('解除关联', `${current.value.name} ↔ ${speaker.name} (手动解除)`)
+  ElMessage.success(`已解除与 ${speaker.name} 的关联`)
+}
+
+async function applyConfig() {
+  configs[current.value.id] = { prio: prio.value, triggers: { ...triggers } }
+  persist()
+  try { await configApi.save('speaker_link', { ...configs }) } catch { /* 后端不可用时仅保留本地配置 */ }
+  const enabled = [triggers.overload && '超载', triggers.wind && '大风', triggers.fence && '越界'].filter(Boolean)
+  pushHistory('应用配置', `${current.value.name} 优先级 L${prio.value},联动触发:${enabled.join('、') || '无'}`)
+  ElMessage.success(`已应用关联配置(优先级 L${prio.value})`)
+}
+
+// 播放试听:浏览器语音合成真实播报警示语
+function playPreview() {
+  if (!('speechSynthesis' in window)) {
+    ElMessage.warning('当前浏览器不支持语音播报,已模拟下发试听指令')
+    return
+  }
+  const enabled = [triggers.overload && '超载', triggers.wind && '大风', triggers.fence && '越界'].filter(Boolean)
+  const text = `安全警示。${current.value.name} 音柱播报试听。当前联动${enabled.join('、') || '常规'}报警,优先级 ${prio.value} 级,请现场人员注意吊装作业安全。`
+  const utter = new SpeechSynthesisUtterance(text)
+  utter.lang = 'zh-CN'
+  utter.rate = 1.05
+  playing.value = true
+  utter.onend = () => { playing.value = false }
+  utter.onerror = () => { playing.value = false }
+  window.speechSynthesis.cancel()
+  window.speechSynthesis.speak(utter)
+  ElMessage.success('已发起播报试听')
+}
+
+function onExportHistory() {
+  exportExcel({
+    filename: '音柱关联历史',
+    sheets: [{
+      name: '关联历史',
+      columns: [
+        { label: '操作时间', key: 'time', width: 20 },
+        { label: '操作人', key: 'operator', width: 16 },
+        { label: '动作', key: 'action', width: 10 },
+        { label: '详情描述', key: 'detail', width: 46 },
+        { label: '状态', key: (row) => (row.ok ? '成功' : '失败'), width: 8 },
+      ],
+      rows: history.value,
+    }],
+  })
+  ElMessage.success(`已导出 ${history.value.length} 条关联历史`)
+}
+
+onMounted(() => { restore(); loadCraneConfig() })
 </script>
 
 <style scoped>
@@ -121,6 +222,7 @@ onMounted(async () => { try { const r = await speakerLinkApi.list({ page: 1, pag
 .pool-item .status-dot { margin-left: auto; }
 .pool-item.active { border-color: var(--qa-border-active); background: var(--qa-panel-3); }
 .pool-item.checked { border-color: var(--qa-cyan); background: var(--qa-cyan-dim); }
+.pool-empty { margin: 0 0 6px; font-size: 12px; color: var(--qa-text-muted); text-align: center; }
 .batch-btn { width: 100%; margin-top: 14px; }
 .canvas { position: relative; min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
 .grid-bg { position: absolute; inset: 0; background-image: radial-gradient(rgba(56,119,157,.2) 1px, transparent 1px); background-size: 22px 22px; }
@@ -129,6 +231,8 @@ onMounted(async () => { try { const r = await speakerLinkApi.list({ page: 1, pag
 .center-node { box-shadow: 0 0 18px rgba(34,211,238,.25); }
 .linked-row { display: flex; gap: 32px; z-index: 2; }
 .node.pending { border-style: dashed; opacity: .8; }
+.node .unlink { position: absolute; top: -8px; right: -8px; width: 18px; height: 18px; display: none; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--qa-danger); background: var(--qa-panel-2); color: var(--qa-danger); font-size: 10px; font-style: normal; cursor: pointer; }
+.node:hover .unlink { display: flex; }
 .empty-hint { position: relative; z-index: 2; color: var(--qa-text-muted); font-size: 13px; }
 .legend { font-size: 11px; color: var(--qa-text-2); }
 .legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 4px; }
@@ -142,6 +246,11 @@ onMounted(async () => { try { const r = await speakerLinkApi.list({ page: 1, pag
 .prio .el-slider { flex: 1; }
 .tip { font-size: 11px; color: var(--qa-text-muted); margin: 6px 0 0; }
 .props :deep(.el-checkbox) { display: flex; margin: 4px 0; }
+/* 两个操作按钮纵向排列:覆盖 Element Plus 相邻按钮默认 margin-left,保证左对齐等宽 */
 .p-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.p-actions .el-button { width: 100%; }
+.p-actions .el-button + .el-button { margin-left: 0; }
+.export-link { cursor: pointer; color: var(--qa-cyan); }
+.export-link:hover { text-decoration: underline; }
 @media (max-width: 1200px) { .link-main { grid-template-columns: 1fr; } .canvas { min-height: 320px; } }
 </style>

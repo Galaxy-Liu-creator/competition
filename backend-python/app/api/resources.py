@@ -1,7 +1,7 @@
 """业务资源路由：标准 CRUD + 特殊端点。"""
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.api._crud import build_crud_router, get_or_404, paginate, query_list
@@ -221,14 +221,43 @@ audit_logs_router = APIRouter(prefix="/api/audit-logs", tags=["AuditLogs 审计�
 @audit_logs_router.get("", summary="审计日志列表")
 def list_audit_logs(
     keyword: str | None = Query(None),
+    operator: str | None = Query(None, description="操作人（模糊匹配）"),
+    module: str | None = Query(None, description="模块（精确匹配）"),
+    start: str | None = Query(None, description="起始日期 YYYY-MM-DD"),
+    end: str | None = Query(None, description="结束日期 YYYY-MM-DD"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
-    return ok(query_list(
-        db, m.AuditLog, ["operator", "action", "module", "detail", "ip"],
-        keyword, None, page, page_size,
-    ))
+    stmt = select(m.AuditLog)
+    count_stmt = select(func.count()).select_from(m.AuditLog)
+
+    conditions = []
+    if keyword:
+        fields = [m.AuditLog.operator, m.AuditLog.action, m.AuditLog.module,
+                  m.AuditLog.detail, m.AuditLog.ip]
+        conditions.append(or_(*[f.ilike(f"%{keyword}%") for f in fields]))
+    if operator:
+        conditions.append(m.AuditLog.operator.ilike(f"%{operator}%"))
+    if module:
+        conditions.append(m.AuditLog.module == module)
+    # created_at 兼容 ISO 与 "YYYY-MM-DD HH:MM" 两种格式，取前 10 位比较日期
+    if start:
+        conditions.append(func.substr(m.AuditLog.created_at, 1, 10) >= start)
+    if end:
+        conditions.append(func.substr(m.AuditLog.created_at, 1, 10) <= end)
+
+    for cond in conditions:
+        stmt = stmt.where(cond)
+        count_stmt = count_stmt.where(cond)
+
+    total = db.scalar(count_stmt) or 0
+    rows = db.scalars(
+        stmt.order_by(m.AuditLog.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    ).all()
+    return ok(paginate([r.to_dict() for r in rows], total, page, page_size))
 
 
 routers.append(audit_logs_router)

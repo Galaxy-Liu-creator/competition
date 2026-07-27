@@ -4,10 +4,11 @@
       <!-- 左:大类树 -->
       <IndustrialPanel title="大类树结构" class="tree-panel">
         <template #extra><el-icon class="add" @click="ElMessage.info('新增大类开发中')"><Plus /></el-icon></template>
-        <el-input v-model="treeKw" placeholder="搜索分类..." size="small" prefix-icon="Search" class="tree-search" />
-        <div v-for="c in categories" :key="c.id" class="tree-item" :class="{ active: c.id === current.id }" @click="selectCat(c)">
-          <el-icon><Folder /></el-icon><span>{{ c.name }} ({{ c.en }})</span>
+        <el-input v-model="treeKw" placeholder="搜索分类..." size="small" prefix-icon="Search" class="tree-search" clearable />
+        <div v-for="c in filteredCategories" :key="c.id" class="tree-item" :class="{ active: c.id === current.id }" @click="selectCat(c)">
+          <el-icon><Folder /></el-icon><span>{{ c.name }}</span>
         </div>
+        <p v-if="!filteredCategories.length" class="tree-empty">无匹配分类</p>
       </IndustrialPanel>
 
       <!-- 中:统计 + 子项列表 -->
@@ -55,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, Folder } from '@element-plus/icons-vue'
 import StatCard from '@/components/StatCard.vue'
@@ -78,12 +79,21 @@ const categories = ref([
   ] },
 ])
 const current = ref(categories.value[0])
-const editItem = ref(null)
+const editItem = ref(categories.value[0].items[0])
+
+// 关键词过滤大类树(中文名/英文名/子项名)
+const filteredCategories = computed(() => {
+  const keyword = treeKw.value.trim().toLowerCase()
+  if (!keyword) return categories.value
+  return categories.value.filter((c) =>
+    `${c.name} ${c.en || ''}`.toLowerCase().includes(keyword) ||
+    (c.items || []).some((item) => `${item.name} ${item.code}`.toLowerCase().includes(keyword)))
+})
 
 const riskTag = (l) => ({ high: 'danger', mid: 'warning', low: 'info' }[l] || 'info')
 const riskText = (l) => ({ high: '高风险', mid: '中风险', low: '低风险' }[l] || '未知')
 
-function selectCat(c) { current.value = c; editItem.value = null }
+function selectCat(c) { current.value = c; editItem.value = c.items[0] || null }
 function selectItem(row) { editItem.value = row }
 function onToggle(row) { ElMessage.success(`${row.name} 已${row.enabled ? '启用' : '禁用'}`) }
 function save() { ElMessage.success('已保存变更'); editItem.value = null }
@@ -91,15 +101,52 @@ function save() { ElMessage.success('已保存变更'); editItem.value = null }
 onMounted(async () => {
   try {
     const res = await violationCategoryApi.list({ page: 1, page_size: 50 })
-    if (res.list?.length) { categories.value = res.list; current.value = res.list[0] }
+    if (res.list?.length) {
+      // 后端大类的 sub_items 是名称数组,映射为子项对象;缺省时生成演示子项
+      const lvMap = { critical: 'high', major: 'mid', general: 'low' }
+      const levels = ['high', 'mid', 'low']
+      categories.value = res.list.map((c, i) => {
+        const lv = lvMap[c.level] || 'mid'
+        const subs = Array.isArray(c.sub_items) && c.sub_items.length ? c.sub_items : null
+        return {
+          ...c,
+          items: subs
+            ? subs.map((name, j) => ({
+                code: `${(c.code || 'VC-0' + (i + 1)).toString().toUpperCase()}-${String(j + 1).padStart(2, '0')}`,
+                name: typeof name === 'string' ? name : name.name,
+                level: typeof name === 'object' && name.level ? name.level : (j === 0 ? lv : levels[(i + j) % 3]),
+                enabled: (i + j) % 4 !== 3,
+                relCount: 20 + ((i * 37 + j * 13) % 120),
+              }))
+            : Array.from({ length: 2 + (i % 3) }, (_, j) => ({
+                code: `VC${i + 1}-00${j + 1}`,
+                name: `${c.name}·检查项 ${j + 1}`,
+                level: levels[(i + j) % 3],
+                enabled: (i + j) % 4 !== 3,
+                relCount: 20 + ((i * 37 + j * 13) % 120),
+              })),
+        }
+      })
+      current.value = categories.value[0]
+      editItem.value = current.value.items[0] || null
+      stat.total = categories.value.reduce((n, c) => n + c.items.length, 0)
+      stat.high = categories.value.reduce((n, c) => n + c.items.filter(x => x.level === 'high').length, 0)
+      stat.mid = categories.value.reduce((n, c) => n + c.items.filter(x => x.level === 'mid').length, 0)
+      stat.low = categories.value.reduce((n, c) => n + c.items.filter(x => x.level === 'low').length, 0)
+    }
   } catch { /* keep demo */ }
 })
 </script>
 
 <style scoped>
-.vc-main { display: grid; grid-template-columns: 260px minmax(0, 1fr) 300px; gap: 16px; }
+.vc-main { display: grid; grid-template-columns: 260px minmax(0, 1fr) 300px; gap: 16px; align-items: stretch; }
+.vc-main > .panel { display: flex; flex-direction: column; }
+.vc-main > .panel :deep(.body) { flex: 1; }
+.mid > .panel { flex: 1; display: flex; flex-direction: column; }
+.mid > .panel :deep(.body) { flex: 1; }
 .add { cursor: pointer; }
 .tree-search { margin-bottom: 10px; }
+.tree-empty { margin: 4px 0; font-size: 12px; color: var(--qa-text-muted); text-align: center; }
 .tree-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
 .tree-item:hover { background: var(--qa-panel-2); }
 .tree-item.active { background: var(--qa-panel-3); color: var(--qa-cyan); }

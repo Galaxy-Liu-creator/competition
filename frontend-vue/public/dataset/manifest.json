@@ -1,0 +1,999 @@
+{
+  "manifestVersion": 2,
+  "generatedAt": "2026-07-26T00:00:00+08:00",
+  "usageBoundary": "Images are public/licensed visual references for the demo UI. Device telemetry, alerts, timestamps, and AI overlays are deterministic simulated data unless an item explicitly says otherwise.",
+  "assets": [
+    {
+      "id": "tower-crane-aerial-01",
+      "path": "/dataset/construction/tower-crane-aerial-01.jpg",
+      "kind": "construction",
+      "dimensions": {
+        "width": 4000,
+        "height": 3000
+      },
+      "tags": [
+        "tower-crane",
+        "construction-site",
+        "aerial"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Tower_crane_aerial_01.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Tower_crane_aerial_01.jpg",
+        "author": "Wikideas1",
+        "description": "Teleoperated tower cranes at a construction site with prefabricated framed walls"
+      },
+      "license": {
+        "spdx": "CC0-1.0",
+        "name": "Creative Commons Zero v1.0 Universal",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "attribution": "Tower crane aerial 01 — Wikideas1 — CC0 1.0",
+      "sha256": "948bec8cb40472c0e7d35befc362fb441d8e47ed9955b977e48a44cf0111faf1",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "general-construction-context"
+      ]
+    },
+    {
+      "id": "tower-crane-aerial-02",
+      "path": "/dataset/construction/tower-crane-aerial-02.jpg",
+      "kind": "construction",
+      "dimensions": {
+        "width": 4000,
+        "height": 3000
+      },
+      "tags": [
+        "tower-crane",
+        "construction-site",
+        "aerial"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Tower_crane_aerial_02.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Tower_crane_aerial_02.jpg",
+        "author": "Wikideas1",
+        "description": "Tower cranes at a construction site with prefabricated framed walls"
+      },
+      "license": {
+        "spdx": "CC0-1.0",
+        "name": "Creative Commons Zero v1.0 Universal",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "attribution": "Tower crane aerial 02 — Wikideas1 — CC0 1.0",
+      "sha256": "cc8c39676fbfad4de8b449f6a118e0a94cd09b43ae3a9080f944d8a6974badac",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "tower-base-monitoring"
+      ]
+    },
+    {
+      "id": "mobile-crane-e16",
+      "path": "/dataset/construction/mobile-crane-e16.jpg",
+      "kind": "construction",
+      "dimensions": {
+        "width": 2957,
+        "height": 2212
+      },
+      "tags": [
+        "mobile-crane",
+        "crane-truck",
+        "construction"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Mobile_crane_E16.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Mobile_crane_E16.jpg",
+        "author": "sludgegulper",
+        "description": "Mobile crane E16, Canning Town tower crane fabrication"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-2.0",
+        "name": "Creative Commons Attribution-ShareAlike 2.0",
+        "url": "https://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "attribution": "Mobile crane E16 — sludgegulper — CC BY-SA 2.0",
+      "sha256": "5e6b8d517043b45ea4b7d04d81afb139e5b2b1350fb33fe1de4e45eb5c6ebbc7",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "vehicle-channel",
+        "general-crane-context"
+      ]
+    },
+    {
+      "id": "mobile-crane-precast-wall",
+      "path": "/dataset/construction/mobile-crane-precast-wall.jpg",
+      "kind": "construction",
+      "dimensions": {
+        "width": 3264,
+        "height": 2448
+      },
+      "tags": [
+        "mobile-crane",
+        "precast-concrete",
+        "lifting"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Mobile_crane_lifting_precast_concrete_walls_for_the_constrution_of_a_three-storey_international_style_hotel_(1).jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Mobile_crane_lifting_precast_concrete_walls_for_the_constrution_of_a_three-storey_international_style_hotel_%281%29.jpg",
+        "author": "Bidgee",
+        "description": "Mobile crane lifting precast concrete walls for a three-storey hotel"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0-AU",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Australia",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0/au/deed.en"
+      },
+      "attribution": "Mobile crane lifting precast concrete walls — Bidgee — CC BY-SA 3.0 AU",
+      "sha256": "832484e7ab8ceec13cf133010c06b1f672750e01f7d0dcfd3d848e57688771e4",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "lifting-zone-monitoring"
+      ]
+    },
+    {
+      "id": "liebherr-ltm1500-genie",
+      "path": "/dataset/construction/liebherr-ltm1500-genie.jpg",
+      "kind": "construction",
+      "dimensions": {
+        "width": 4032,
+        "height": 3024
+      },
+      "tags": [
+        "mobile-crane",
+        "liebherr",
+        "aerial-work-platform",
+        "construction-site"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:A_Liebherr_LTM_1500-8.1_crane_truck_lifting_a_Genie_S-85_Lift_Crane_02.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/3/35/A_Liebherr_LTM_1500-8.1_crane_truck_lifting_a_Genie_S-85_Lift_Crane_02.jpg",
+        "author": "Tbatb",
+        "description": "A Liebherr LTM 1500-8.1 crane truck lifting a Genie S-85 lift crane"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-4.0",
+        "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+        "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      "attribution": "A Liebherr LTM 1500-8.1 crane truck lifting a Genie S-85 Lift Crane 02 — Tbatb — CC BY-SA 4.0",
+      "sha256": "1423a8dcab3844a71ce700faa94e3da107306f1395cfe8441c84f1362469c1a5",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "general-crane-context"
+      ]
+    },
+    {
+      "id": "ppe-helmet-0014",
+      "path": "/dataset/ppe/ppe-helmet-0014.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1920,
+        "height": 1280
+      },
+      "tags": [
+        "construction-worker",
+        "hard-hat",
+        "person",
+        "construction-site"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Construction_worker_CT.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Construction_worker_CT.jpg",
+        "author": "HelenOnline",
+        "description": "Construction worker on a construction site in Green Point, Cape Town, South Africa"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      "attribution": "Construction worker CT — HelenOnline — CC BY-SA 3.0",
+      "sha256": "7333102e0e9d5ed19c51c656d55890c5be97f8ec5b32765463aa22c1262fe6a7",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "compliant-ppe-reference"
+      ]
+    },
+    {
+      "id": "ppe-site-0517",
+      "path": "/dataset/ppe/ppe-site-0517.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "construction-worker",
+        "hard-hat",
+        "fall-protection",
+        "steel-structure"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Baliwagenyo_welder_with_green_hard_hat_working_atop_a_petrol_station_metal_structure_02.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/9/94/Baliwagenyo_welder_with_green_hard_hat_working_atop_a_petrol_station_metal_structure_02.jpg",
+        "author": "FBenjr123",
+        "description": "Welder with a green hard hat and fall-protection harness working on a metal structure"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-4.0",
+        "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+        "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      "attribution": "Baliwagenyo welder with green hard hat 02 — FBenjr123 — CC BY-SA 4.0",
+      "sha256": "ea0afae565e7ea2e1a91b6b673b60b7da0550e79f012c20cbfbf7aae9d87d74a",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "compliant-fall-protection-reference"
+      ]
+    },
+    {
+      "id": "ppe-site-0637",
+      "path": "/dataset/ppe/ppe-site-0637.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1920,
+        "height": 2868
+      },
+      "tags": [
+        "construction-worker",
+        "hard-hat",
+        "eye-protection",
+        "power-tool"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Woman_with_chop_saw_and_hard_hat_(3401747795).jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Woman_with_chop_saw_and_hard_hat_%283401747795%29.jpg",
+        "author": "Sean McGrath",
+        "description": "Construction worker wearing a hard hat and eye protection beside a chop saw"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "attribution": "Woman with chop saw and hard hat — Sean McGrath — CC BY 2.0",
+      "sha256": "9604bdc18849103136e447c4f7024f719f9acb6e6b655435e8afe6e3f458ee52",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "compliant-ppe-reference",
+        "helmet-detection-normal"
+      ]
+    },
+    {
+      "id": "ppe-site-0675",
+      "path": "/dataset/ppe/ppe-site-0675.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1600,
+        "height": 1067
+      },
+      "tags": [
+        "construction-worker",
+        "hard-hat",
+        "person",
+        "break-area"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Construction_worker_-_8217.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Construction_worker_-_8217.jpg",
+        "author": "Jorge Royan",
+        "description": "Construction worker wearing a hard hat during a lunch break"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      "attribution": "Construction worker - 8217 — Jorge Royan — CC BY-SA 3.0",
+      "sha256": "f5de7f74fcd239837097f1098db32a9d0fb11bca5cc48febe0cebdd73c547b13",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "compliant-ppe-reference"
+      ]
+    },
+    {
+      "id": "ppe-site-0701",
+      "path": "/dataset/ppe/ppe-site-0701.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1024,
+        "height": 766
+      },
+      "tags": [
+        "construction-worker",
+        "no-fall-protection",
+        "safety-violation",
+        "work-at-height"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Construction_workers_not_wearing_fall_protection_equipment.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Construction_workers_not_wearing_fall_protection_equipment.jpg",
+        "author": "National Institute for Occupational Safety and Health (NIOSH)",
+        "description": "Construction workers at height without appropriate fall-protection equipment"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://commons.wikimedia.org/wiki/Commons:Copyright_rules_by_territory/United_States#Works_by_the_US_Federal_Government"
+      },
+      "attribution": "Construction workers not wearing fall protection equipment — NIOSH — Public domain",
+      "sha256": "23aba350f9eace6466851d7e4b0178a3bf02ef208b31f20cbf46e71e049b8e42",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "未系安全带"
+      ]
+    },
+    {
+      "id": "ppe-site-0803",
+      "path": "/dataset/ppe/ppe-site-0803.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1600,
+        "height": 2000
+      },
+      "tags": [
+        "construction-worker",
+        "hard-hat",
+        "fall-protection",
+        "steel-structure"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Construction_Workers.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Construction_Workers.jpg",
+        "author": "Paul Keheler",
+        "description": "Ironworkers erecting the steel frame of a new building at Massachusetts General Hospital"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "attribution": "Construction Workers — Paul Keheler — CC BY 2.0",
+      "sha256": "548722153ba37e84332897ca883b0d3ca63052620f35f1b63fbc60117c2a599a",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "compliant-ppe-reference"
+      ]
+    },
+    {
+      "id": "worker-without-ppe",
+      "path": "/dataset/violations/worker-without-ppe.jpg",
+      "kind": "violation",
+      "dimensions": {
+        "width": 1024,
+        "height": 706
+      },
+      "tags": [
+        "construction-worker",
+        "no-hard-hat",
+        "no-ppe",
+        "work-at-height"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Worker_without_proper_safety_equipment.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/5/50/Worker_without_proper_safety_equipment.jpg",
+        "author": "National Institute for Occupational Safety and Health (NIOSH)",
+        "description": "Worker at a considerable height lacking any kind of PPE"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      "attribution": "Worker without proper safety equipment — NIOSH — Public domain",
+      "sha256": "8783f424ce4f6792498b0868fe3706c2f74dd61f1d2e6a6ec6c5bde2732afbe5",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "未佩戴安全帽",
+        "no_helmet"
+      ]
+    },
+    {
+      "id": "unsafe-crane-parking",
+      "path": "/dataset/violations/unsafe-crane-parking.jpg",
+      "kind": "violation",
+      "dimensions": {
+        "width": 722,
+        "height": 1024
+      },
+      "tags": [
+        "heavy-equipment",
+        "unsafe-parking",
+        "unsafe-operation"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Crane_parked_dangerously.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/Crane_parked_dangerously.jpg",
+        "author": "National Institute for Occupational Safety and Health (NIOSH)",
+        "description": "Crane wheels chocked up in a dangerous position"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      "attribution": "Crane parked dangerously — NIOSH — Public domain",
+      "sha256": "749755ca0fed59cb99f9f8ddd5e80a3f547fd71669030adab314367a8df4db14",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "违章操作"
+      ]
+    },
+    {
+      "id": "drywall-crane-worksite",
+      "path": "/dataset/lifting/drywall-crane-worksite.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 2267,
+        "height": 1254
+      },
+      "tags": [
+        "crane-truck",
+        "cluttered-worksite",
+        "material-yard"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Drywall_Crane_Workers.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Drywall_Crane_Workers.jpg",
+        "author": "National Institute for Occupational Safety and Health (NIOSH)",
+        "description": "Cluttered crane worksite with trash, materials, and equipment"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      "attribution": "Drywall Crane Workers — NIOSH — Public domain",
+      "sha256": "7f24c5ddfcf44f92ed1e29888de07fe008e9e8b7e3dcd8fd3872cdcd1ccabcd1",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "material-yard-monitoring",
+        "cluttered-worksite"
+      ]
+    },
+    {
+      "id": "heavy-load-lift",
+      "path": "/dataset/lifting/heavy-load-lift.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1500,
+        "height": 2100
+      },
+      "tags": [
+        "heavy-load",
+        "crane-lift",
+        "tag-line",
+        "worker"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:US_Navy_100308-N-1120L-014_Seabees_assigned_to_(NMCB)_7_use_tag_lines_to_steady_a_20,000-pound_load_during_a_crane_lift_to_load_cargo_onto_a_tractor_trailer.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/US_Navy_100308-N-1120L-014_Seabees_assigned_to_%28NMCB%29_7_use_tag_lines_to_steady_a_20%2C000-pound_load_during_a_crane_lift_to_load_cargo_onto_a_tractor_trailer.jpg",
+        "author": "U.S. Navy photo by Mass Communication Specialist 2nd Class Michael B. Lavender",
+        "description": "Seabees use tag lines to steady a 20,000-pound load during a crane lift"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      "attribution": "20,000-pound crane lift — Michael B. Lavender / U.S. Navy — Public domain",
+      "sha256": "f141568d00f76be87431c6da273d1f0685c885e52f5e796d4db09b870caee83e",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "rotation-zone-monitoring"
+      ]
+    },
+    {
+      "id": "trench-box-guidance",
+      "path": "/dataset/lifting/trench-box-guidance.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1884,
+        "height": 1512
+      },
+      "tags": [
+        "suspended-load",
+        "worker",
+        "danger-zone-context"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Trench_safety_-_guiding_the_trench_box_(9250664732).jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/9/90/Trench_safety_-_guiding_the_trench_box_%289250664732%29.jpg",
+        "author": "National Institute for Occupational Safety and Health (NIOSH)",
+        "description": "Instructor demonstrating the correct method of guiding a suspended trench box"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      "attribution": "Trench safety — guiding the trench box — NIOSH — Public domain",
+      "sha256": "60191cb592886ec78518a89208ea895367de26c5b5c03146a33daf50bab8736a",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "lifting-danger-zone"
+      ]
+    },
+    {
+      "id": "improper-eyebolt",
+      "path": "/dataset/lifting/improper-eyebolt.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 2000,
+        "height": 3000
+      },
+      "tags": [
+        "improper-rigging",
+        "unsafe-eyebolt",
+        "lifting-hardware"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Trench_safety_-_improper_eyebolt_(9247876609).jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/Trench_safety_-_improper_eyebolt_%289247876609%29.jpg",
+        "author": "National Institute for Occupational Safety and Health (NIOSH)",
+        "description": "An improper eyebolt that is unsafe to use"
+      },
+      "license": {
+        "spdx": "LicenseRef-Public-Domain",
+        "name": "Public domain (United States federal government work)",
+        "url": "https://creativecommons.org/publicdomain/mark/1.0/"
+      },
+      "attribution": "Trench safety — improper eyebolt — NIOSH — Public domain",
+      "sha256": "bca03daba7fc5115cb712c06f644610e47471540ecd8a7cae43d6758e5856462",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "legacy-demo-context"
+      ]
+    },
+    {
+      "id": "crane-hook-guidance",
+      "path": "/dataset/lifting/crane-hook-guidance.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1280,
+        "height": 1920
+      },
+      "tags": [
+        "crane-hook",
+        "signal-person",
+        "scaffolding",
+        "compliant-ppe"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Construction_Worker_(8098562099).jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Construction_Worker_%288098562099%29.jpg/1280px-Construction_Worker_%288098562099%29.jpg",
+        "originalAssetUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Construction_Worker_%288098562099%29.jpg",
+        "author": "Tony Alter",
+        "description": "Construction worker on scaffolding guiding in a crane hook"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "attribution": "Construction Worker (8098562099) — Tony Alter — CC BY 2.0",
+      "sha256": "8c41a715dd9dfcfd7a2ef067141efac4c2c1ef4007b50f7003b7674f21aa4608",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "radar-video-linkage",
+        "hook-guidance"
+      ]
+    },
+    {
+      "id": "crane-lifting-ashlars",
+      "path": "/dataset/lifting/crane-lifting-ashlars.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1280,
+        "height": 853
+      },
+      "tags": [
+        "crane-hook",
+        "workers",
+        "lifting-workface",
+        "no-hard-hat"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Tanjung-Badak_Sabah_Crane-lifting-ashlars-02.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Tanjung-Badak_Sabah_Crane-lifting-ashlars-02.jpg/1280px-Tanjung-Badak_Sabah_Crane-lifting-ashlars-02.jpg",
+        "originalAssetUrl": "https://upload.wikimedia.org/wikipedia/commons/3/30/Tanjung-Badak_Sabah_Crane-lifting-ashlars-02.jpg",
+        "author": "CEphoto, Uwe Aranas",
+        "description": "Crane lifting ashlars with workers on the lifting workface"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      "attribution": "Tanjung-Badak Sabah Crane-lifting-ashlars-02 — Uwe Aranas — CC BY-SA 3.0",
+      "sha256": "0f5891b48effffebd9ec6c906f3fc5bfeb0e9fadb0546b4c70ea2c1c22dc2320",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "person_in_rotation_radius",
+        "boom-workface-monitoring"
+      ]
+    },
+    {
+      "id": "tower-crane-anemometer",
+      "path": "/dataset/equipment/tower-crane-anemometer.jpg",
+      "kind": "equipment",
+      "dimensions": {
+        "width": 1280,
+        "height": 960
+      },
+      "tags": [
+        "tower-crane",
+        "cabin",
+        "cup-anemometer"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Potain_tower_crane4_-_Cabin.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Potain_tower_crane4_-_Cabin.jpg/1280px-Potain_tower_crane4_-_Cabin.jpg",
+        "originalAssetUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Potain_tower_crane4_-_Cabin.jpg",
+        "author": "Cjp24",
+        "description": "Potain MDT 178 tower-crane cabin with a cup anemometer visible above the structure"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-4.0",
+        "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+        "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      "attribution": "Potain tower crane4 — Cabin — Cjp24 — CC BY-SA 4.0",
+      "sha256": "d9b2de434dbd1ade43f52a103706999d14f836285ae707a009689a1c692618b4",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "大风超阈值起吊",
+        "限位失效"
+      ]
+    },
+    {
+      "id": "construction-site-entrance",
+      "path": "/dataset/access-control/construction-site-entrance.jpg",
+      "kind": "access-control",
+      "dimensions": {
+        "width": 2096,
+        "height": 1209
+      },
+      "tags": [
+        "construction-entrance",
+        "camera",
+        "safety-signage"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:China_Construction_Site_Safety.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/China_Construction_Site_Safety.jpg",
+        "author": "Aussie72",
+        "description": "Workplace safety notices and cameras at the entrance to a Chinese construction site"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      "attribution": "China Construction Site Safety — Aussie72 — CC BY-SA 3.0",
+      "sha256": "f2e08fccf752a5b1c7627e8dec736edf5d0780052a0c92e6c25e4a0a3862840e",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "设备离线",
+        "device_offline",
+        "gate-monitoring",
+        "vehicle-recognition"
+      ]
+    },
+    {
+      "id": "restricted-construction-fence",
+      "path": "/dataset/access-control/restricted-construction-fence.jpg",
+      "kind": "access-control",
+      "dimensions": {
+        "width": 1080,
+        "height": 810
+      },
+      "tags": [
+        "construction-fence",
+        "no-entry-sign",
+        "people"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:%E7%AB%8B%E5%85%A5%E7%A6%81%E6%AD%A2_(33881687926).jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7a/%E7%AB%8B%E5%85%A5%E7%A6%81%E6%AD%A2_%2833881687926%29.jpg",
+        "author": "se7en",
+        "description": "Construction-site fence with no-entry signs and people around the restricted area"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "attribution": "立入禁止 (33881687926) — se7en — CC BY 2.0",
+      "sha256": "d49f7abf0fac204ec44a01317c876ef4f19de5e21800dce2385d0beaf3e3b7bd",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "perimeter-monitoring"
+      ]
+    },
+    {
+      "id": "site-gate-pedestrians",
+      "path": "/dataset/access-control/site-gate-pedestrians.jpg",
+      "kind": "access-control",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "site-hoarding",
+        "gate",
+        "pedestrians",
+        "no-hard-hat-visitors"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:HK_Central_Pottinger_Street_construction_site_Nov-2010.JPG",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/HK_Central_Pottinger_Street_construction_site_Nov-2010.JPG/1920px-HK_Central_Pottinger_Street_construction_site_Nov-2010.JPG",
+        "author": "TongGooSE2010",
+        "description": "Construction site hoarding and gate on a stepped street with pedestrians nearby"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "attribution": "HK Central Pottinger Street construction site Nov-2010 - TongGooSE2010 - CC BY-SA 3.0",
+      "sha256": "324b7ec85c873a4416473cb8884cceb26fdb05ede035a1bea710951f41bdbfc9",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "违规闯入",
+        "cross_fence",
+        "perimeter-camera-CAM-P-001"
+      ]
+    },
+    {
+      "id": "site-fence-warning-sign",
+      "path": "/dataset/access-control/site-fence-warning-sign.jpg",
+      "kind": "access-control",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "construction-fence",
+        "no-entry-sign",
+        "tower-crane",
+        "rebar-stacks"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Dornbirn-Heron-building_site-cranes-warning_signs-03ASD.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Dornbirn-Heron-building_site-cranes-warning_signs-03ASD.jpg/1920px-Dornbirn-Heron-building_site-cranes-warning_signs-03ASD.jpg",
+        "author": "Asurnipal",
+        "description": "Building site mesh fence with no-entry and emergency-plan banner, tower crane and rebar stacks behind"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-4.0",
+        "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+        "url": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "attribution": "Dornbirn-Heron building site cranes warning signs 03ASD - Asurnipal - CC BY-SA 4.0",
+      "sha256": "bbba60337069f2e25e6bf31f1e5c82195f6665bc74bff00da23e5da1cba6c2a3",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "monitor-camera-CAM-09"
+      ]
+    },
+    {
+      "id": "site-yard-tower-cranes",
+      "path": "/dataset/construction/site-yard-tower-cranes.jpg",
+      "kind": "construction",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "tower-crane",
+        "site-yard",
+        "fence",
+        "machinery"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Dornbirn-Heron-building_site-cranes-warning_signs-02ASD.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Dornbirn-Heron-building_site-cranes-warning_signs-02ASD.jpg/1920px-Dornbirn-Heron-building_site-cranes-warning_signs-02ASD.jpg",
+        "author": "Asurnipal",
+        "description": "Fenced building site yard with two flat-top tower cranes and machinery"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-4.0",
+        "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+        "url": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "attribution": "Dornbirn-Heron building site cranes warning signs 02ASD - Asurnipal - CC BY-SA 4.0",
+      "sha256": "d678c9ceb92d3b1ce6cf51de5d7c6a136064acbb619ed798a53e20b1ab0a3498",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "monitor-camera-CAM-13"
+      ]
+    },
+    {
+      "id": "girder-heavy-lift",
+      "path": "/dataset/lifting/girder-heavy-lift.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "crawler-crane",
+        "concrete-girder",
+        "heavy-load"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River.jpg/1920px-Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River.jpg",
+        "author": "NCDOTcommunications",
+        "description": "Crawler crane lifting a massive precast concrete bridge girder"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "attribution": "Crews Install Beams for New I-85 North Bridge over Yadkin River - NCDOTcommunications - CC BY 2.0",
+      "sha256": "437aa1bbc19a8ceb1d075d010d6cd32818e05e14c47916895344b9c75ae07628",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "超载起吊",
+        "overload_risk",
+        "monitor-camera-CAM-16"
+      ]
+    },
+    {
+      "id": "angled-girder-rigging",
+      "path": "/dataset/lifting/angled-girder-rigging.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "crane-hook",
+        "angled-rigging",
+        "concrete-girder",
+        "dusk"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River_-_6168992369.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River_-_6168992369.jpg/1920px-Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River_-_6168992369.jpg",
+        "author": "NCDOTcommunications",
+        "description": "Concrete girder suspended on visibly angled two-point rigging at dusk"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "attribution": "Crews Install Beams for New I-85 North Bridge over Yadkin River (6168992369) - NCDOTcommunications - CC BY 2.0",
+      "sha256": "24a6c562cf7258055c0c41b2186b5b7d55fa70e7144c2932faebc836995e5875",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "sensor-context",
+      "evidenceFor": [
+        "斜拉斜吊"
+      ]
+    },
+    {
+      "id": "girder-landing-zone",
+      "path": "/dataset/lifting/girder-landing-zone.jpg",
+      "kind": "lifting",
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "tags": [
+        "suspended-girder",
+        "workers",
+        "landing-zone",
+        "cranes"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River_-_6169526502.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River_-_6169526502.jpg/1920px-Crews_Install_Beams_for_New_I-85_North_Bridge_over_Yadkin_River_-_6169526502.jpg",
+        "author": "NCDOTcommunications",
+        "description": "Workers beneath and beside a girder suspended by two crawler cranes over the landing zone"
+      },
+      "license": {
+        "spdx": "CC-BY-2.0",
+        "name": "Creative Commons Attribution 2.0 Generic",
+        "url": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "attribution": "Crews Install Beams for New I-85 North Bridge over Yadkin River (6169526502) - NCDOTcommunications - CC BY 2.0",
+      "sha256": "e36fbb0ce5e72587864e89e0c8b9d296bc79bcc59efc73a29292edf31d653213",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "overlay-assisted",
+      "evidenceFor": [
+        "吊物下方站人",
+        "monitor-camera-CAM-10"
+      ]
+    },
+    {
+      "id": "rebar-deck-crew",
+      "path": "/dataset/ppe/rebar-deck-crew.jpg",
+      "kind": "ppe",
+      "dimensions": {
+        "width": 1920,
+        "height": 1440
+      },
+      "tags": [
+        "construction-workers",
+        "hard-hat",
+        "rebar-deck",
+        "tower-crane"
+      ],
+      "source": {
+        "name": "Wikimedia Commons",
+        "page": "https://commons.wikimedia.org/wiki/File:Construction_in_Vienna.jpg",
+        "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Construction_in_Vienna.jpg/1920px-Construction_in_Vienna.jpg",
+        "author": "Yair Haklai",
+        "description": "Elevated view of a rebar deck crew wearing hard hats and hi-vis beside a tower crane mast"
+      },
+      "license": {
+        "spdx": "CC-BY-SA-3.0",
+        "name": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+        "url": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "attribution": "Construction in Vienna - Yair Haklai - CC BY-SA 3.0",
+      "sha256": "70c01db9f0df8faa59ee391236b14dade4984972c7d0e45f41adf9c49550db8c",
+      "displayOverlay": "demo-overlay",
+      "evidenceMode": "direct-visual",
+      "evidenceFor": [
+        "perimeter-camera-CAM-P-004"
+      ]
+    }
+  ]
+}

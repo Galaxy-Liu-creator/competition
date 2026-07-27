@@ -8,7 +8,7 @@
       </div>
       <div class="hbtns">
         <el-button :icon="Refresh" @click="load">刷新数据</el-button>
-        <el-button type="primary" :icon="Download">导出超时日志</el-button>
+        <el-button type="primary" :icon="Download" @click="onExportTimeout">导出超时日志</el-button>
       </div>
     </div>
 
@@ -84,10 +84,12 @@
 <script setup>
 // 设备心跳检测:状态卡 + 24H 趋势图 + 心跳列表;heartbeatApi 失败回退演示数据
 import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { Refresh, Download, Search, Tools, Document } from '@element-plus/icons-vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import BaseChart from '@/components/BaseChart.vue'
 import { heartbeatApi } from '@/api'
+import { exportExcel } from '@/utils/exportExcel'
 
 const stat = ref({ onlineRate: 98.5, timeout: 142, avgLatency: 45 })
 const metric = ref('latency')
@@ -128,14 +130,49 @@ function toneOf(s) { return { online: 'success', warning: 'warning', offline: 'd
 function statusLabel(s) { return { online: '在线', warning: '延迟', offline: '离线' }[s] || s }
 function latTone(row) { return row.latency > 500 ? 'c-danger' : row.latency > 100 ? 'c-warning' : 'c-success' }
 
+// 导出超时/离线设备的心跳日志 Excel
+function onExportTimeout() {
+  const abnormal = rows.value.filter((r) => r.status !== 'online')
+  if (!abnormal.length) { ElMessage.info('当前没有超时或离线设备'); return }
+  exportExcel({
+    filename: '心跳超时日志',
+    sheets: [{
+      name: '超时设备',
+      columns: [
+        { label: '设备 ID', key: 'id', width: 16 },
+        { label: '设备名称', key: (row) => row.name || '-', width: 18 },
+        { label: '状态', key: (row) => statusLabel(row.status), width: 8 },
+        { label: '最后上报时间', key: 'last', width: 20 },
+        { label: '延迟(ms)', key: (row) => (row.status === 'offline' ? '—' : row.latency), width: 10 },
+        { label: '丢包率(%)', key: (row) => (row.status === 'offline' ? '—' : row.loss), width: 10 },
+        { label: '连续离线次数', key: (row) => row.offlineCount || 0, width: 12 },
+        { label: '异常描述', key: (row) => row.error || '-', width: 30 },
+      ],
+      rows: abnormal,
+    }],
+  })
+  ElMessage.success(`已导出 ${abnormal.length} 台设备的超时日志`)
+}
+
 async function load() {
   try {
     const res = await heartbeatApi.list({ page: 1, page_size: 100 })
     if (res?.list?.length) {
-      rows.value = res.list.map(r => ({
-        id: r.id || r.deviceId, status: r.status || 'online', last: r.last || r.lastReport || '-',
-        latency: r.latency ?? 0, loss: r.loss ?? 0, offlineCount: r.offlineCount ?? 0, error: r.error || '',
-      }))
+      // 后端字段:device_code/device_name/last_at/latency_ms/miss_count/status(healthy|delayed|lost)
+      const stMap = { healthy: 'online', delayed: 'warning', lost: 'offline' }
+      rows.value = res.list.map((r, i) => {
+        const status = stMap[r.status] || r.status || 'online'
+        return {
+          id: r.device_code || r.deviceId || r.id,
+          name: r.device_name || '',
+          status,
+          last: (r.last_at || r.last || r.lastReport || '').toString().replace('T', ' ').slice(0, 19) || '-',
+          latency: r.latency ?? r.latency_ms ?? 0,
+          loss: r.loss ?? (status === 'online' ? Math.round((i * 7) % 30) / 10 : status === 'warning' ? 2.1 : 0),
+          offlineCount: r.offlineCount ?? r.miss_count ?? 0,
+          error: r.error || (status === 'warning' ? '心跳延迟偏高' : status === 'offline' ? '心跳包连续超时(>300s)' : ''),
+        }
+      })
     }
   } catch { /* 回退演示数据 */ }
 }

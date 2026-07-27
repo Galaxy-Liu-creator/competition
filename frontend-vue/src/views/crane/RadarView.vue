@@ -5,8 +5,12 @@
       <IndustrialPanel title="雷达资产列表">
         <template #extra>
           <div class="toolbar">
-            <el-input v-model="kw" placeholder="搜索设备 ID…" :prefix-icon="Search" size="small" style="width: 180px" />
-            <el-button size="small" :icon="Filter">筛选</el-button>
+            <el-input v-model="kw" placeholder="搜索设备 ID…" :prefix-icon="Search" size="small" style="width: 180px" clearable />
+            <el-select v-model="statusFilter" size="small" style="width: 110px" placeholder="全部状态" clearable>
+              <el-option label="在线巡检" value="online" />
+              <el-option label="信号弱" value="warning" />
+              <el-option label="离线" value="offline" />
+            </el-select>
           </div>
         </template>
         <el-table :data="pagedRows" highlight-current-row @current-change="r => r && (current = r)">
@@ -71,7 +75,7 @@
 // 雷达传感器:资产列表 + 覆盖预览 + 参数配置 + 点云;radarApi 失败回退演示数据
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search, Filter } from '@element-plus/icons-vue'
+import { Search } from '@element-plus/icons-vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import BaseChart from '@/components/BaseChart.vue'
 import { radarApi } from '@/api'
@@ -84,9 +88,12 @@ const rows = ref([
 ])
 const current = ref(null)
 const kw = ref('')
+const statusFilter = ref('')
 const page = ref(1)
 const pageSize = 10
-const filteredRows = computed(() => rows.value.filter(r => !kw.value || r.id.includes(kw.value)))
+const filteredRows = computed(() => rows.value.filter(r =>
+  (!kw.value || r.id.includes(kw.value)) &&
+  (!statusFilter.value || r.status === statusFilter.value)))
 const pagedRows = computed(() => filteredRows.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 
 const sensitivity = ref(80)
@@ -109,9 +116,15 @@ const cloudOption = computed(() => ({
 onMounted(async () => {
   try {
     const res = await radarApi.list({ page: 1, page_size: 100 })
-    if (res?.list?.length) rows.value = res.list.map(r => ({
-      id: r.id, name: r.name || '-', model: r.model || '-', position: r.position || '-', crane: r.crane || '-',
-      radius: r.radius ?? 0, status: r.status || 'online', calibration: r.calibration || '已标定',
+    // 后端字段(work_zone/crane_id/range_m)映射为页面字段,缺省时补演示值
+    if (res?.list?.length) rows.value = res.list.map((r, i) => ({
+      id: r.code || r.id, name: r.name || ['主臂前向探测点', '副臂侧向探测点', '盲区补偿探测点'][i % 3],
+      model: r.model || ['MMW-77G-Pro', 'MMW-77G-Std', 'MMW-24G-Lite'][i % 3],
+      position: r.work_zone || r.position || ['吊臂顶端', '吊臂左侧', '底盘后方'][i % 3],
+      crane: r.crane || (r.crane_id != null ? `CR-80${10 + r.crane_id}` : `CR-80${12 + (i % 4)}`),
+      radius: r.radius ?? r.range_m ?? 65,
+      status: r.status || 'online',
+      calibration: r.calibration || (r.status === 'offline' ? '失标' : r.status === 'warning' ? '需复标 [超期]' : '已标定 [999d]'),
     }))
   } catch { /* 回退演示数据 */ }
   current.value = rows.value[0] || null
@@ -119,7 +132,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: stretch; }
 .toolbar { display: flex; gap: 8px; }
 .idc { display: flex; flex-direction: column; }
 .idc small { font-size: 11px; color: var(--qa-text-muted); }

@@ -109,17 +109,20 @@ def test_radar_readings_endpoint():
 
 def test_risk_event_handle_transitions_status():
     api = client()
-    pending = None
-    for item in ok_data(api.get("/api/risk-events", params={"status": "pending"}))["list"]:
-        pending = item
-        break
-    assert pending is not None
-    data = ok_data(api.post(
-        f"/api/risk-events/{pending['id']}/handle",
-        json={"action": "accept", "handler": "测试员", "note": "受理"},
-    ))
-    assert data["status"] == "processing"
-    assert data["handler"] == "测试员"
+    # 自建待处理事件，避免依赖并消耗共享库中的种子数据
+    created = ok_data(api.post("/api/risk-events", json={
+        "event_no": "PYTEST-RISK-001", "type": "越界闯入",
+        "level": "general", "status": "pending",
+    }))
+    try:
+        data = ok_data(api.post(
+            f"/api/risk-events/{created['id']}/handle",
+            json={"action": "accept", "handler": "测试员", "note": "受理"},
+        ))
+        assert data["status"] == "processing"
+        assert data["handler"] == "测试员"
+    finally:
+        api.delete(f"/api/risk-events/{created['id']}")
 
 
 def test_config_get_and_put():
@@ -141,3 +144,43 @@ def test_speaker_link_create_and_delete():
     ))
     link_id = created["id"]
     assert api.delete(f"/api/speaker-links/{link_id}").status_code == 200
+
+
+def test_audit_logs_filter_by_operator():
+    api = client()
+    data = ok_data(api.get("/api/audit-logs", params={"operator": "张安全"}))
+    assert data["total"] >= 1
+    assert all("张安全" in row["operator"] for row in data["list"])
+
+
+def test_audit_logs_filter_by_module():
+    api = client()
+    data = ok_data(api.get("/api/audit-logs", params={"module": "风险事件"}))
+    assert data["total"] >= 1
+    assert all(row["module"] == "风险事件" for row in data["list"])
+
+
+def test_audit_logs_filter_by_date_range():
+    api = client()
+    data = ok_data(api.get(
+        "/api/audit-logs",
+        params={"start": "2026-07-19", "end": "2026-07-19"},
+    ))
+    assert data["total"] >= 1
+    assert all(str(row["created_at"]).startswith("2026-07-19") for row in data["list"])
+
+    empty = ok_data(api.get(
+        "/api/audit-logs",
+        params={"start": "2020-01-01", "end": "2020-12-31"},
+    ))
+    assert empty["total"] == 0
+
+
+def test_camera_list_filter_by_type():
+    api = client()
+    data = ok_data(api.get("/api/cameras", params={"type": "hook"}))
+    assert data["total"] >= 1
+    assert all(row["type"] == "hook" for row in data["list"])
+
+    unfiltered = ok_data(api.get("/api/cameras"))
+    assert unfiltered["total"] > data["total"]

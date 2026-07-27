@@ -208,6 +208,7 @@ class User(Base, TimestampMixin):
     role: Mapped[str] = mapped_column(String(32), default="系统管理员")
     email: Mapped[str] = mapped_column(String(64), default="")
     avatar_text: Mapped[str] = mapped_column(String(4), default="")
+    avatar: Mapped[str] = mapped_column(Text, default="")  # 头像图片 DataURL，空串表示未上传
     last_login_at: Mapped[str] = mapped_column(String(32), default="")
     last_login_ip: Mapped[str] = mapped_column(String(32), default="")
     preferences: Mapped[dict] = mapped_column(JSON, default=dict)

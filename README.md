@@ -48,9 +48,9 @@ npm run dev              # http://127.0.0.1:5173
 - 登录页(20)、个人设置页(21):JWT 登录、明暗主题切换、偏好设置
 - 电子围栏、安全报表、审计日志(无设计稿,按同风格补全)
 
-## 地图接入(待配置)
+## 地图接入与离线回退
 
-地图区域当前使用 `src/components/map/MapPlaceholder.vue` 占位。拿到高德 Web Key 后,在
+地图区域由 `src/components/map/SiteMap.vue` 渲染。配置高德 Web Key 后,在
 `frontend-vue/.env.local`(勿提交 Git)配置:
 
 ```env
@@ -59,11 +59,20 @@ VITE_AMAP_KEY=your-key
 VITE_AMAP_SECURITY_CODE=your-security-code
 ```
 
-后端已提供 `GET /api/sites/{siteId}/map-overview` 聚合接口(站点/设备点位/GIS 围栏/告警/天气,GCJ-02),接入时按 `docs/后端技术栈与地图接入方案.md` 的适配层方案实现即可。
+后端已提供 `GET /api/sites/{siteId}/map-overview` 聚合接口(站点/设备点位/GIS 围栏/告警/天气,GCJ-02)。缺少 key、SDK 加载失败或业务接口暂不可用时,前端会自动切换到本地 SVG 离线示意图,并明确标注“GCJ-02 演示坐标”。
+
+## 前端媒体与数据集归属
+
+监控画面和风险证据帧使用 `frontend-vue/public/dataset/` 中的公开/授权图片,来源、作者、许可证、归属文本和 SHA-256 集中记录在 [`frontend-vue/public/dataset/manifest.json`](frontend-vue/public/dataset/manifest.json),人类可读说明见 [`frontend-vue/public/dataset/README.md`](frontend-vue/public/dataset/README.md)。主要来源包括:
+
+- Wikimedia Commons 的逐图 CC0、公共领域、CC BY 2.0、CC BY-SA 2.0、CC BY-SA 3.0/3.0 AU 和 CC BY-SA 4.0 塔吊、施工现场、作业人员与安全防护图片。
+- PPE/人员素材均按 Commons 单个文件页核验作者与许可证；曾评估但带商业图库水印的第三方样本没有进入最终产品媒体目录。
+
+页面通过 `frontend-vue/src/data/demoMedia.js` 的稳定媒体 ID 引用图片,不引用没有许可证声明的 `aswin_hoist_*.jpg` 文件。图片是真实公开素材;设备状态、遥测、告警时间线、天气和报表数字仍是后端确定性演示种子数据。未附带官方检测框的图片上的框和标签是 `demo-overlay`,不代表真实模型推理。
 
 ## 测试
 
 ```powershell
-cd backend-python && python -m pytest tests -q   # 22 passed
+cd backend-python && python -m pytest tests -q   # 当前测试集应全部通过
 cd frontend-vue && npm run build                  # 构建验证
 ```

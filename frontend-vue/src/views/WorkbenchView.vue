@@ -19,7 +19,7 @@
             <span><i class="dot bad"></i>告警区域</span>
           </div>
         </template>
-        <MapPlaceholder />
+        <SiteMap />
       </IndustrialPanel>
 
       <IndustrialPanel title="实时告警队列" class="queue">
@@ -74,7 +74,7 @@
 
 <script setup>
 // 工作台:6 统计卡 + 鸟瞰图/告警队列 + 三分析面板;接口失败回退演示数据
-import { ref, onMounted } from 'vue'
+import { markRaw, ref, onMounted } from 'vue'
 import {
   Van, Histogram, WarningFilled, CircleCloseFilled, Files, Aim,
   Aim as AimIcon, VideoCamera, Odometer,
@@ -82,8 +82,8 @@ import {
 import StatCard from '@/components/StatCard.vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import BaseChart from '@/components/BaseChart.vue'
-import MapPlaceholder from '@/components/map/MapPlaceholder.vue'
-import { dashboardApi } from '@/api'
+import SiteMap from '@/components/map/SiteMap.vue'
+import { dashboardApi, siteApi } from '@/api'
 
 const stat = ref({
   craneOnline: 24, craneTotal: 28, onlineRate: 85.7, todayAlarm: 12,
@@ -91,9 +91,9 @@ const stat = ref({
 })
 
 const alarms = ref([
-  { id: 1, level: 'danger', levelLabel: '严重告警', title: '违规闯入电子围栏', time: '10:42:15', source: '2#汽车吊 · B区闯入', icon: AimIcon },
-  { id: 2, level: 'warning', levelLabel: '一般预警', title: '起吊重量接近极限', time: '10:38:06', source: '1#塔吊 · 载重 12.5t', icon: Van },
-  { id: 3, level: 'info', levelLabel: '系统提示', title: '传感器离线', time: '09:15:22', source: '雷达-04 · 通信中断', icon: Odometer },
+  { id: 1, level: 'danger', levelLabel: '严重告警', title: '违规闯入电子围栏', time: '10:42:15', source: '2#汽车吊 · B区闯入', icon: markRaw(AimIcon) },
+  { id: 2, level: 'warning', levelLabel: '一般预警', title: '起吊重量接近极限', time: '10:38:06', source: '1#塔吊 · 载重 12.5t', icon: markRaw(Van) },
+  { id: 3, level: 'info', levelLabel: '系统提示', title: '传感器离线', time: '09:15:22', source: '雷达-04 · 通信中断', icon: markRaw(Odometer) },
 ])
 
 const health = ref([
@@ -111,14 +111,14 @@ const violations = ref([
 
 const trendOption = ref(buildTrend([5, 8, 6, 12, 9, 7, 11], [2, 3, 1, 5, 3, 2, 4]))
 
-function buildTrend(risk, major) {
+function buildTrend(risk, major, dates = ['1日', '2日', '3日', '4日', '5日', '6日', '今日']) {
   return {
     grid: { top: 20, left: 36, right: 16, bottom: 26 },
     tooltip: { trigger: 'axis' },
     legend: { data: ['风险事件', '重大风险'], textStyle: { color: '#8ba3c2' }, right: 0, top: 0, itemWidth: 12, itemHeight: 8 },
     xAxis: {
       type: 'category', boundaryGap: false,
-      data: ['1日', '2日', '3日', '4日', '5日', '6日', '今日'],
+      data: dates,
       axisLine: { lineStyle: { color: '#1e3a5c' } },
       axisLabel: { color: '#55708f', fontSize: 11 },
     },
@@ -137,33 +137,58 @@ function buildTrend(risk, major) {
 }
 
 onMounted(async () => {
-  // 接口成功则覆盖演示数据,失败静默回退
+  // 接口成功则覆盖演示数据；结构化数字来自后端，失败时保留固定回退。
   try {
     const ov = await dashboardApi.overview()
-    if (ov) Object.assign(stat.value, {
-      craneOnline: ov.craneOnline ?? stat.value.craneOnline,
-      craneTotal: ov.craneTotal ?? stat.value.craneTotal,
-      onlineRate: ov.onlineRate ?? stat.value.onlineRate,
-      todayAlarm: ov.todayAlarm ?? stat.value.todayAlarm,
-      majorRisk: ov.majorRisk ?? stat.value.majorRisk,
-      workingTask: ov.workingTask ?? stat.value.workingTask,
-      fenceCount: ov.fenceCount ?? stat.value.fenceCount,
-    })
-  } catch { /* 回退演示数据 */ }
-
-  try {
-    const list = await dashboardApi.recentAlarms()
-    if (Array.isArray(list) && list.length) {
-      alarms.value = list.slice(0, 3).map((a, i) => ({
-        id: a.id ?? i, level: a.level || 'info', levelLabel: a.levelLabel || '系统提示',
-        title: a.title || a.message, time: a.time, source: a.source, icon: AimIcon,
+    const stats = ov?.stats || {}
+    stat.value.todayAlarm = stats.todayAlerts ?? stat.value.todayAlarm
+    stat.value.majorRisk = stats.criticalAlarms ?? stat.value.majorRisk
+    if (stats.totalDevices) {
+      stat.value.onlineRate = Math.round((stats.onlineDevices / stats.totalDevices) * 1000) / 10
+    }
+    const series = ov?.trend?.series || []
+    if (series.length) {
+      trendOption.value = buildTrend(
+        series[0]?.data || [],
+        series[1]?.data || [],
+        ov.trend.dates || undefined,
+      )
+    }
+    if (Array.isArray(ov?.recentAlarms) && ov.recentAlarms.length) {
+      const levelMap = { critical: 'danger', high: 'danger', medium: 'warning', low: 'info' }
+      alarms.value = ov.recentAlarms.slice(0, 3).map((alarm, i) => ({
+        id: alarm.id ?? i,
+        level: levelMap[alarm.level] || 'info',
+        levelLabel: alarm.levelLabel || '系统提示',
+        title: alarm.title || alarm.typeLabel || '风险事件',
+        time: alarm.occurredAt ? String(alarm.occurredAt).slice(11, 19) : '--:--:--',
+        source: [alarm.deviceId, alarm.description].filter(Boolean).join(' · ') || '现场监测节点',
+        icon: markRaw(AimIcon),
       }))
     }
   } catch { /* 回退演示数据 */ }
 
   try {
-    const t = await dashboardApi.trend()
-    if (t?.risk && t?.major) trendOption.value = buildTrend(t.risk, t.major)
+    const map = await siteApi.mapOverview('site-001')
+    const devices = map?.devices || []
+    const cranes = devices.filter((device) => device.type === 'crane')
+    stat.value.craneTotal = cranes.length || stat.value.craneTotal
+    stat.value.craneOnline = cranes.filter((device) => device.status !== 'offline').length || 0
+    stat.value.workingTask = devices.filter((device) => device.status === 'working').length
+    stat.value.fenceCount = (map?.fences || []).length || stat.value.fenceCount
+  } catch { /* 回退演示数据 */ }
+
+  try {
+    const categories = await dashboardApi.categoryDistribution()
+    if (Array.isArray(categories) && categories.length) {
+      const max = Math.max(...categories.map((item) => Number(item.value) || 0), 1)
+      violations.value = categories.slice(0, 4).map((item, i) => ({
+        label: item.name || '其他风险',
+        count: item.value || 0,
+        pct: Math.round(((item.value || 0) / max) * 100),
+        color: ['#ef4444', '#eab308', '#3b82f6', '#22d3ee'][i],
+      }))
+    }
   } catch { /* 回退演示数据 */ }
 })
 </script>

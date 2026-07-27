@@ -16,13 +16,14 @@
     <section class="content">
       <IndustrialPanel class="videos">
         <div class="video-grid" :class="'g' + grid">
-          <article v-for="(v, i) in videos" :key="v.name" class="feed">
-            <img src="/login-bg.png" :alt="v.name" />
+          <article v-for="(v, i) in visibleVideos" :key="v.name" class="feed">
+            <img class="bg" :src="v.img" alt="" aria-hidden="true" />
+            <img class="fg" :src="v.img" :alt="v.name" />
             <header>{{ v.name }}<time class="mono">{{ nowSec(i) }}</time></header>
             <div v-if="v.alert" class="detect" :class="{ gold: v.tone === 'gold' }">{{ v.alert }}</div>
             <footer>
               <span class="rec">REC · 1080P</span>
-              <b class="mono">AI {{ i === 0 ? '告警' : '正常' }} · 延迟 68ms</b>
+              <b class="mono">AI {{ v.alert ? '告警' : '正常' }} · 延迟 68ms</b>
             </footer>
           </article>
         </div>
@@ -54,9 +55,10 @@
 
 <script setup>
 // 实时监控:视频宫格 + 遥测 + 雷达域 + 联动设备(由旧 MonitorView 迁移,改用 --qa- 令牌)
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import RadarScope from '@/components/RadarScope.vue'
+import { mediaPath } from '@/data/demoMedia'
 
 const craneSel = ref('all')
 const areaSel = ref('2')
@@ -67,11 +69,17 @@ const now = '2026-07-21 14:36'
 const nowSec = (i) => `2026-07-21 14:36:2${i + 1}`
 
 const videos = [
-  { name: 'CAM-08 · 吊臂作业面', alert: 'PERSON 0.94', tone: 'danger' },
-  { name: 'CAM-09 · 南侧围栏' },
-  { name: 'CAM-10 · 吊装落区', alert: 'LIFTING AREA', tone: 'gold' },
-  { name: 'CAM-11 · 车辆通道' },
+  { name: 'CAM-08 · 吊臂作业面', alert: 'PERSON · 回转区 0.94', tone: 'danger', img: mediaPath('craneLiftingAshlars') },
+  { name: 'CAM-09 · 南侧围栏', img: mediaPath('siteFenceWarningSign') },
+  { name: 'CAM-10 · 吊装落区', alert: 'LIFTING ZONE', tone: 'gold', img: mediaPath('girderLandingZone') },
+  { name: 'CAM-11 · 车辆通道', img: mediaPath('mobileCraneE16') },
+  { name: 'CAM-12 · 北侧塔基', img: mediaPath('towerCraneAerial02') },
+  { name: 'CAM-13 · 物料堆场', img: mediaPath('siteYardTowerCranes') },
+  { name: 'CAM-14 · 高空作业面', alert: 'NO HARNESS 0.88', tone: 'danger', img: mediaPath('ppeSite0701') },
+  { name: 'CAM-15 · 东门闸口', img: mediaPath('constructionSiteEntrance') },
+  { name: 'CAM-16 · 主臂回转区', alert: 'ROTATION ZONE', tone: 'gold', img: mediaPath('girderHeavyLift') },
 ]
+const visibleVideos = computed(() => videos.slice(0, grid.value))
 const telemetry = [
   ['吊臂角度', '42.6°'], ['载荷重量', '8.42 t'], ['回转角度', '126.4°'],
   ['吊钩高度', '18.7 m'], ['实时风速', '5.2 m/s'], ['安全余量', '28.4%'],
@@ -101,7 +109,8 @@ const linked = [
 .video-grid.g4 { grid-template-columns: repeat(2, 1fr); }
 .video-grid.g9 { grid-template-columns: repeat(3, 1fr); }
 .feed { position: relative; min-height: 320px; overflow: hidden; border: 1px solid var(--qa-border-strong); background: #050b12; border-radius: 4px; }
-.feed img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.43) saturate(.65); }
+.feed img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(16px) brightness(.35) saturate(.7); transform: scale(1.12); }
+.feed img.fg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: brightness(.78) saturate(.9); }
 .feed header, .feed footer { position: absolute; z-index: 2; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 11px; }
 .feed header { top: 10px; padding: 7px 9px; background: rgba(4, 13, 24, .82); border-left: 2px solid var(--qa-cyan); }
 .feed footer { bottom: 9px; }

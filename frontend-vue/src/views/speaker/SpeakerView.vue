@@ -103,10 +103,26 @@ const demo = [
 ]
 const demoRec = [{ type: 'sys', title: '区域闯入告警(系统)', time: '10:43:15', text: '警告:您已进入电子围栏区域,请立刻撤离。' }, { type: 'man', title: '人工喊话', time: '09:15:00', text: '塔吊操作,务必注意交接班安全。' }]
 
+const demoTexts = ['注意安全,请戴好安全帽', '警告:您已进入吊装作业区,请立即撤离', '风力较大,请注意高空作业安全', '车辆进出,请注意避让']
+
 async function load() {
   try {
     const res = await speakerApi.list({ ...query, page: 1, page_size: 50 })
-    list.value = (res.list && res.list.length) ? res.list : demo
+    // 后端字段(work_zone/ip/volume/status)映射为页面字段,缺省时补演示值
+    list.value = (res.list && res.list.length)
+      ? res.list.map((r, i) => ({
+          id: r.id,
+          code: r.code || `SPK-${String(i + 1).padStart(3, '0')}`,
+          location: r.work_zone || r.location || `${['A', 'B', 'C'][i % 3]}区 塔吊基座`,
+          crane: r.crane || `CR-80${12 + (i % 4)}`,
+          volume: r.volume ?? 70,
+          lastText: r.lastText || (r.status === 'online' ? demoTexts[i % demoTexts.length] : ''),
+          lastTime: r.lastTime || (r.status === 'online' ? `${String(8 + (i % 10)).padStart(2, '0')}:${String((i * 11) % 60).padStart(2, '0')}:15` : ''),
+          ping: r.ping ?? (12 + (i * 7) % 40),
+          status: r.status || 'online',
+          sn: r.sn, ip: r.ip, since: r.since, fw: r.fw, records: r.records,
+        }))
+      : demo
   } catch { list.value = demo }
   if (!current.value) onSelect(list.value[0])
 }

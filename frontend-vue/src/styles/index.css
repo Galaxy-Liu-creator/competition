@@ -12,6 +12,11 @@
   --qa-panel-3: #16294a;      /* hover / 选中行 */
   --qa-sidebar: #081020;      /* 侧边栏 */
 
+  /* 面板渐变与表格表头(日间主题会覆盖) */
+  --qa-panel-grad: linear-gradient(180deg, rgba(19, 41, 68, .98), rgba(15, 32, 53, .98));
+  --qa-card-grad: linear-gradient(135deg, #192e4b, #152740);
+  --qa-table-header-bg: #0b1930;
+
   /* 边框 */
   --qa-border: #1e3a5c;
   --qa-border-strong: #2c527c;
@@ -71,14 +76,18 @@
   --el-disabled-text-color: var(--qa-text-muted);
 }
 
-/* ---------- 日间主题(对应 settings 设计稿 light 令牌;侧边栏保持深色) ---------- */
+/* ---------- 日间主题(对应 settings 设计稿 light 令牌;整页含侧边栏一起切换) ---------- */
 [data-theme="light"] {
   --qa-bg: #eef2f8;
   --qa-bg-2: #ffffff;
   --qa-panel: #ffffff;
   --qa-panel-2: #f2f6fc;
   --qa-panel-3: #e7eef8;
-  --qa-sidebar: #0e1c30;
+  --qa-sidebar: #ffffff;
+
+  --qa-panel-grad: linear-gradient(180deg, #ffffff, #f7fafd);
+  --qa-card-grad: linear-gradient(135deg, #ffffff, #eef3fa);
+  --qa-table-header-bg: #f0f4fa;
 
   --qa-border: #dbe4f0;
   --qa-border-strong: #b9c9de;
@@ -171,11 +180,11 @@ button:focus-visible, a:focus-visible {
 .el-table {
   --el-table-bg-color: transparent;
   --el-table-tr-bg-color: transparent;
-  --el-table-header-bg-color: #0b1930;
+  --el-table-header-bg-color: var(--qa-table-header-bg);
   --el-table-row-hover-bg-color: var(--qa-panel-3);
   --el-table-border-color: var(--qa-border);
   --el-table-header-text-color: var(--qa-text-2);
-  --el-table-text-color: #d5e3f5;
+  --el-table-text-color: var(--qa-text);
   background: transparent !important;
 }
 .el-table th.el-table__cell { font-size: 12px; font-weight: 600; letter-spacing: .05em; }

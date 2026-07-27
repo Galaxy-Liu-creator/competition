@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.data import mock_data as md
+from app.data.demo_media import image_for_alarm, image_for_risk_event
 from app.db import models as m
 
 
@@ -299,7 +300,7 @@ def _seed_business(db: Session) -> None:
             occurred_at=f"2026-07-{day:02d}T{8 + i % 12:02d}:{(i * 7) % 60:02d}:00+08:00",
             handler=handler,
             handle_note="" if status == "pending" else f"{handler} 已跟进处理",
-            image_url=f"/static/events/EV{i:04d}.jpg",
+            image_url=image_for_risk_event(etype, i),
         ))
 
     # 心跳
@@ -346,18 +347,73 @@ def _seed_users(db: Session) -> None:
     ))
 
 
+def _sync_demo_media(db: Session) -> bool:
+    """Refresh evidence paths in an existing database without changing schemas."""
+    changed = False
+
+    events = db.scalars(select(m.RiskEvent).order_by(m.RiskEvent.id)).all()
+    for index, event in enumerate(events):
+        expected = image_for_risk_event(event.type, index)
+        if event.image_url != expected:
+            event.image_url = expected
+            changed = True
+
+    alarms = db.scalars(select(m.LegacyAlarm).order_by(m.LegacyAlarm.id)).all()
+    for index, alarm in enumerate(alarms):
+        payload = dict(alarm.payload)
+        evidence = dict(payload.get("evidence") or {})
+        expected = image_for_alarm(payload.get("type", ""), index)
+        if evidence.get("imageUrl") != expected:
+            evidence["imageUrl"] = expected
+            payload["evidence"] = evidence
+            alarm.payload = payload
+            changed = True
+
+    return changed
+
+
+def _sync_legacy_geo(db: Session) -> bool:
+    """Keep legacy map payloads (site/device/fence/alarm) aligned with mock_data.
+
+    地图坐标/围栏若在 mock_data 中调整，即使数据库已播种也能同步生效，
+    无需删库重建。"""
+    changed = False
+
+    def _apply(model, items, id_key: str) -> None:
+        nonlocal changed
+        for item in items:
+            row = db.get(model, item[id_key])
+            if row is not None and row.payload != item:
+                row.payload = item
+                changed = True
+
+    _apply(m.LegacySite, md.SITES, "id")
+    _apply(m.LegacyDevice, md.DEVICES, "id")
+    _apply(m.LegacyFence, md.FENCES, "id")
+    _apply(m.LegacyAlarm, md.ALARMS, "id")
+    return changed
+
+
 def seed(db: Session) -> bool:
     """若吊车表与站点表均为空则播种，返回是否执行了播种。"""
     has_business = db.scalar(select(m.Crane.id).limit(1))
     has_legacy = db.scalar(select(m.LegacySite.id).limit(1))
     has_user = db.scalar(select(m.User.id).limit(1))
-    if has_business and has_legacy and has_user:
-        return False
+    seeded = False
     if not has_business:
         _seed_business(db)
+        seeded = True
     if not has_legacy:
         _seed_legacy(db)
+        seeded = True
     if not has_user:
         _seed_users(db)
-    db.commit()
-    return True
+        seeded = True
+
+    if seeded:
+        db.flush()
+    geo_changed = _sync_legacy_geo(db)
+    media_changed = _sync_demo_media(db)
+    if seeded or geo_changed or media_changed:
+        db.commit()
+    return seeded

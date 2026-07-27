@@ -9,8 +9,8 @@
 
     <div class="fence-main">
       <IndustrialPanel title="围栏空间分布" class="map-panel">
-        <template #extra>地图 API 待配置</template>
-        <MapPlaceholder />
+        <template #extra>高德地图 · 实时渲染</template>
+        <SiteMap />
       </IndustrialPanel>
 
       <IndustrialPanel title="围栏列表" class="list-panel">
@@ -42,7 +42,7 @@ import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import StatCard from '@/components/StatCard.vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
-import MapPlaceholder from '@/components/map/MapPlaceholder.vue'
+import SiteMap from '@/components/map/SiteMap.vue'
 
 const stats = reactive({ total: 12, enabled: 9, high: 3, devices: 46 })
 const fences = ref([
@@ -58,7 +58,9 @@ function onToggle(f) { ElMessage.success(`「${f.name}」已${f.enabled ? '启�
 </script>
 
 <style scoped>
-.fence-main { display: grid; grid-template-columns: minmax(0, 1.6fr) 360px; gap: 16px; align-items: start; }
+.fence-main { display: grid; grid-template-columns: minmax(0, 1.6fr) 360px; gap: 16px; align-items: stretch; }
+.fence-main > .panel { display: flex; flex-direction: column; }
+.fence-main > .panel :deep(.body) { flex: 1; }
 .map-panel :deep(.body) { padding: 0; }
 .map-panel :deep(.map) { min-height: 560px; }
 .fence-list { display: flex; flex-direction: column; gap: 12px; max-height: 560px; overflow: auto; }

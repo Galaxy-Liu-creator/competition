@@ -108,10 +108,20 @@ async function reboot() {
 onMounted(async () => {
   try {
     const res = await edgeBoxApi.list({ page: 1, page_size: 100 })
-    if (res?.list?.length) rows.value = res.list.map(r => ({
-      id: r.id, name: r.name || '-', ip: r.ip || '-', firmware: r.firmware || '-', cpu: r.cpu ?? 0,
-      mem: r.mem || '-', temp: r.temp ?? 0, latency: r.latency ?? 0, status: r.status || 'online', uptime: r.uptime || '-', procs: procsA,
-    }))
+    // 后端字段(version/cpu_percent/mem_percent/temperature)映射为页面字段,缺省时补演示值
+    if (res?.list?.length) rows.value = res.list.map((r, i) => {
+      const cpu = r.cpu ?? r.cpu_percent ?? (18 + (i * 13) % 60)
+      const status = r.status === 'fault' || cpu > 90 ? 'danger' : (r.status || 'online')
+      return {
+        id: r.code || r.id, name: r.name || `边缘盒 ${i + 1}#`, ip: r.ip || `192.168.10.${40 + i}`,
+        firmware: r.version || r.firmware || 'v2.4.1-stable', cpu,
+        mem: r.mem || (r.mem_percent != null ? `${Math.round(r.mem_percent * 0.08 * 10) / 10}GB (8G)` : `${4 + (i % 3)}GB (8G)`),
+        temp: r.temp ?? r.temperature ?? (38 + (i * 7) % 30),
+        latency: r.latency ?? (10 + (i * 11) % 90),
+        status, uptime: r.uptime || `${20 + (i * 9) % 60}d ${(i * 5) % 24}h`,
+        procs: status === 'danger' ? procsB : procsA,
+      }
+    })
   } catch { /* 回退演示数据 */ }
   current.value = rows.value.find(r => r.status === 'danger') || rows.value[0] || null
 })
@@ -119,7 +129,9 @@ onMounted(async () => {
 
 <style scoped>
 .stat-row.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.body-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; }
+.body-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: stretch; }
+.body-grid > .panel { display: flex; flex-direction: column; }
+.body-grid > .panel :deep(.body) { flex: 1; }
 .toolbar { display: flex; gap: 8px; }
 .idc { display: flex; flex-direction: column; }
 .idc small { font-size: 11px; color: var(--qa-text-muted); }

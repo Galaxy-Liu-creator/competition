@@ -17,9 +17,11 @@
           <article v-for="c in feeds" :key="c.id" class="cam" :class="{ off: c.status === 'offline' }">
             <div class="screen">
               <template v-if="c.status !== 'offline'">
-                <img src="/login-bg.png" :alt="c.name" />
+                <img class="bg" :src="c.img" alt="" aria-hidden="true" />
+                <img class="fg" :src="c.img" :alt="c.name" />
                 <span class="ts mono">录制中 {{ c.ts }}</span>
-                <span v-if="c.alert" class="ai-alert">闯入警告</span>
+                <span v-if="c.alert" class="ai-alert">{{ c.alert }}</span>
+                <span v-else-if="c.notice" class="ai-alert normal">{{ c.notice }}</span>
                 <span v-if="c.circle" class="target"></span>
                 <el-icon class="wifi c-success"><Connection /></el-icon>
                 <span class="res mono">{{ c.res }}</span>
@@ -90,12 +92,13 @@ import { ElMessage } from 'element-plus'
 import { Plus, Connection, VideoCameraFilled, Setting, WarningFilled, Search } from '@element-plus/icons-vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import { cameraApi } from '@/api'
+import { mediaPath } from '@/data/demoMedia'
 
 const feeds = ref([
-  { id: 'CAM-P-001', name: 'CAM-P-001(东区周界)', crane: 'CR-8012', status: 'online', ts: '00:14:23', res: '1080P / 30FPS', alert: true, circle: true, caps: ['人员检测', '电子围栏联动'] },
-  { id: 'CAM-P-002', name: 'CAM-P-002(南区大门)', crane: '无', status: 'online', ts: '12:06:11', res: '4K / 60FPS', caps: ['车辆识别'] },
-  { id: 'CAM-P-003', name: 'CAM-P-003(北区吊臂)', crane: 'CR-8022', status: 'offline', ts: '', res: '', caps: ['画面采集'] },
-  { id: 'CAM-P-004', name: 'CAM-P-004(物料区)', crane: 'CR-8015', status: 'online', ts: '04:22:01', res: '1080P / 30FPS', caps: ['安全帽检测'] },
+  { id: 'CAM-P-001', name: 'CAM-P-001(东区周界)', crane: 'CR-8012', status: 'online', ts: '00:14:23', res: '1080P / 30FPS', alert: '电子围栏越界联动', circle: true, caps: ['人员检测', '电子围栏联动'], img: mediaPath('siteGatePedestrians') },
+  { id: 'CAM-P-002', name: 'CAM-P-002(南区大门)', crane: '无', status: 'online', ts: '12:06:11', res: '4K / 60FPS', caps: ['车辆识别', '入口管控'], img: mediaPath('constructionSiteEntrance') },
+  { id: 'CAM-P-003', name: 'CAM-P-003(北区吊臂)', crane: 'CR-8022', status: 'online', ts: '08:41:37', res: '1080P / 30FPS', notice: '吊钩指挥监护中', caps: ['吊钩跟踪', '指挥手势识别'], img: mediaPath('craneHookGuidance') },
+  { id: 'CAM-P-004', name: 'CAM-P-004(物料区)', crane: 'CR-8015', status: 'online', ts: '04:22:01', res: '1080P / 30FPS', notice: 'PPE 检测正常', caps: ['安全帽检测', '护目镜检测'], img: mediaPath('rebarDeckCrew') },
 ])
 
 const sys = ref({ total: 42, alarm: 3, latency: 24 })
@@ -103,7 +106,7 @@ const sys = ref({ total: 42, alarm: 3, latency: 24 })
 const list = ref([
   { id: 'CAM-P-001', status: 'online', dir: '北侧', ability: '人员检测, 围栏…', hb: 12 },
   { id: 'CAM-P-002', status: 'online', dir: '南门', ability: '车辆识别', hb: 18 },
-  { id: 'CAM-P-003', status: 'offline', dir: '东侧', ability: '画面采集', hb: 0 },
+  { id: 'CAM-P-003', status: 'online', dir: '东侧', ability: '吊钩跟踪, 手势识别', hb: 21 },
   { id: 'CAM-P-004', status: 'online', dir: '物料区', ability: '安全帽检测', hb: 16 },
   { id: 'CAM-P-005', status: 'online', dir: '西侧', ability: '人员检测', hb: 16 },
   { id: 'CAM-P-006', status: 'alarm', dir: '中控室', ability: '行为分析', hb: 69 },
@@ -139,9 +142,11 @@ onMounted(async () => {
 .cam-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .cam { border: 1px solid var(--qa-border); border-radius: 6px; overflow: hidden; background: var(--qa-panel-2); }
 .screen { position: relative; height: 200px; background: #04080f; overflow: hidden; }
-.screen img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.5) saturate(.7); }
+.screen img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(16px) brightness(.35) saturate(.7); transform: scale(1.12); }
+.screen img.fg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: brightness(.8) saturate(.9); }
 .ts { position: absolute; left: 8px; top: 8px; font-size: 11px; color: var(--qa-cyan); background: rgba(4, 13, 24, .7); padding: 2px 6px; border-radius: 3px; }
 .ai-alert { position: absolute; left: 8px; top: 32px; font-size: 11px; color: #fff; background: var(--qa-danger); padding: 3px 8px; border-radius: 3px; }
+.ai-alert.normal { background: var(--qa-success); }
 .target { position: absolute; left: 45%; top: 40%; width: 40px; height: 40px; border: 2px solid var(--qa-danger); border-radius: 50%; box-shadow: 0 0 12px var(--qa-danger); }
 .wifi { position: absolute; right: 8px; top: 8px; font-size: 15px; }
 .res { position: absolute; left: 8px; bottom: 8px; font-size: 11px; color: var(--qa-cyan); }

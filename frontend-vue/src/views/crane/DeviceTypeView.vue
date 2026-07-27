@@ -106,6 +106,7 @@ function defaultJson(id) {
 }
 
 const form = ref(null)
+onMounted(() => { if (types.value.length) edit(types.value[0]) })
 function edit(row) {
   form.value = row ? { ...row } : { code: '', name: '', protocol: 'MQTT-SN', heartbeat: 5000, template: defaultJson('NEW-TYPE') }
 }
@@ -124,15 +125,25 @@ async function save() {
 onMounted(async () => {
   try {
     const res = await deviceTypeApi.list({ page: 1, page_size: 100 })
-    if (res?.list?.length) types.value = res.list.map(t => ({
-      code: t.code || t.id, name: t.name, protocol: t.protocol || 'MQTT-SN', heartbeat: t.heartbeat ?? 5000, template: t.template || defaultJson(t.code || t.id),
-    }))
+    // 后端无 protocol/heartbeat/template 字段,按索引补演示值
+    if (res?.list?.length) {
+      const protocols = ['MQTT-SN', 'MODBUS-TCP', 'HTTP-REST']
+      types.value = res.list.map((t, i) => ({
+        code: t.code || t.id, name: t.name || `设备类型 ${i + 1}`,
+        protocol: t.protocol || protocols[i % 3],
+        heartbeat: t.heartbeat ?? (i % 3 === 2 ? 3000 : 5000),
+        template: t.template || defaultJson(t.code || t.id),
+      }))
+      if (types.value.length) edit(types.value[0])
+    }
   } catch { /* 回退演示数据 */ }
 })
 </script>
 
 <style scoped>
-.grid3 { display: grid; grid-template-columns: 280px minmax(0, 1fr) 380px; gap: 14px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: 280px minmax(0, 1fr) 380px; gap: 14px; align-items: stretch; }
+.grid3 > .panel { display: flex; flex-direction: column; }
+.grid3 > .panel :deep(.body) { flex: 1; }
 .ph { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .ph h2 { display: flex; align-items: center; gap: 9px; margin: 0; font-size: 14px; }
 .ph h2 i { width: 4px; height: 17px; background: linear-gradient(var(--qa-cyan), var(--qa-blue)); }
@@ -148,7 +159,7 @@ onMounted(async () => {
 .sub .mk { width: 3px; height: 14px; background: var(--qa-cyan); }
 .sub .raw { margin-left: auto; font-weight: 400; font-size: 12px; color: var(--qa-cyan); cursor: pointer; }
 .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.json :deep(.el-textarea__inner) { font-family: var(--qa-mono); font-size: 12px; background: #081426; }
+.json :deep(.el-textarea__inner) { font-family: var(--qa-mono); font-size: 12px; background: var(--qa-panel-2); }
 .fbtns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
 
 @media (max-width: 1300px) { .grid3 { grid-template-columns: 1fr; } }

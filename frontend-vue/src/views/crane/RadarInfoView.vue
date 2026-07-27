@@ -15,15 +15,15 @@
         </div>
       </IndustrialPanel>
 
-      <IndustrialPanel title="视频联动窗口">
+      <IndustrialPanel title="视频 / 遥测联动窗口">
         <template #extra><span class="qa-tag warning">定位追踪 T-8821</span></template>
         <div class="video">
-          <img src="/login-bg.png" alt="联动视频" />
+          <img :src="linkedVideo" alt="吊钩指挥人员联动画面" />
           <span class="rec"><i class="status-dot c-danger"></i>录制中</span>
           <div class="tbox">
-            <div class="tinfo mono">吊钩 ID: CRANE-07<br>高度: 44.5m<br>载重: 12.4t<br>状态: 起吊中<br>风速: 14km/h</div>
+            <div class="tinfo mono">吊钩 ID: CRANE-07<br>高度: 44.5m<br>载重: 12.4t<br>状态: 起吊中<br>风速: 14km/h<br>来源: 雷达 + 吊机遥测</div>
           </div>
-          <span class="cam-label mono">CAM-04 · 主吊臂视角</span>
+          <span class="cam-label mono">CAM-04 · 吊钩引导作业面</span>
         </div>
       </IndustrialPanel>
     </section>
@@ -32,11 +32,11 @@
     <section class="bottom">
       <IndustrialPanel title="目标实时数据">
         <el-table :data="targets" size="small">
-          <el-table-column label="目标 ID" min-width="90"><template #default="{ row }"><b class="mono" :class="{ 'c-gold': row.risk === 'warning' }">{{ row.id }}</b></template></el-table-column>
+          <el-table-column label="目标 ID" min-width="90"><template #default="{ row }"><b class="mono" :class="{ 'c-gold': row.risk !== 'safe' }">{{ row.id }}</b></template></el-table-column>
           <el-table-column prop="dist" label="距离(m)" align="right"><template #default="{ row }"><span class="mono">{{ row.dist }}</span></template></el-table-column>
           <el-table-column prop="speed" label="速度(m/s)" align="right"><template #default="{ row }"><span class="mono">{{ row.speed }}</span></template></el-table-column>
           <el-table-column prop="azimuth" label="方位角" align="right"><template #default="{ row }"><span class="mono">{{ row.azimuth }}</span></template></el-table-column>
-          <el-table-column label="风险等级" width="80" align="center"><template #default="{ row }"><span class="qa-tag" :class="row.risk === 'warning' ? 'warning' : 'success'">{{ row.risk === 'warning' ? '警告' : '安全' }}</span></template></el-table-column>
+          <el-table-column label="风险等级" width="80" align="center"><template #default="{ row }"><span class="qa-tag" :class="riskTone(row.risk)">{{ riskLabel(row.risk) }}</span></template></el-table-column>
         </el-table>
       </IndustrialPanel>
 
@@ -76,6 +76,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { WarningFilled, Clock } from '@element-plus/icons-vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import { radarApi } from '@/api'
+import { mediaPath } from '@/data/demoMedia'
+
+const linkedVideo = mediaPath('craneHookGuidance')
 
 const targets = ref([
   { id: 'T-4092', dist: 28.4, speed: 1.2, azimuth: '045°', risk: 'safe' },
@@ -87,6 +90,9 @@ const dangerR = ref(30)
 const warnR = ref(60)
 const playback = ref(50)
 
+const riskTone = (risk) => ({ danger: 'danger', warning: 'warning', safe: 'success' }[risk] || 'info')
+const riskLabel = (risk) => ({ danger: '危险', warning: '警告', safe: '安全' }[risk] || '未知')
+
 async function emergencyStop() {
   await ElMessageBox.confirm('确认下发紧急停止吊装指令?此操作将立即制动当前吊装作业。', '紧急停止', { type: 'warning', confirmButtonText: '确认停止' })
   ElMessage.success('已下发紧急停止指令')
@@ -94,9 +100,21 @@ async function emergencyStop() {
 
 onMounted(async () => {
   try {
-    const res = await radarApi.readings('RDR-CR1-001')
-    if (Array.isArray(res) && res.length) targets.value = res.map(t => ({
-      id: t.id, dist: t.dist, speed: t.speed, azimuth: t.azimuth, risk: t.risk || 'safe',
+    const radarList = await radarApi.list({ page: 1, page_size: 100 })
+    const radars = radarList?.list || []
+    const radar = radars.find(r => r.status !== 'offline' && r.readings?.some(t => t.level !== 'safe'))
+      || radars.find(r => r.status !== 'offline')
+      || radars[0]
+    if (!radar?.id) return
+
+    const res = await radarApi.readings(radar.id)
+    const readings = Array.isArray(res?.targets) ? res.targets : []
+    if (readings.length) targets.value = readings.map((t, i) => ({
+      id: t.id || `T-${String(radar.id * 100 + i + 1).padStart(4, '0')}`,
+      dist: t.dist ?? t.distance ?? 0,
+      speed: t.speed ?? 0,
+      azimuth: t.azimuth ?? `${t.angle ?? 0}°`,
+      risk: t.risk || t.level || 'safe',
     }))
   } catch { /* 回退演示数据 */ }
 })
@@ -122,7 +140,7 @@ onMounted(async () => {
 .blip .tag { position: absolute; left: 14px; top: -6px; padding: 4px 8px; font-size: 10px; color: var(--qa-text); background: rgba(6,17,31,.9); border: 1px solid var(--qa-border); border-radius: 4px; white-space: nowrap; line-height: 1.5; }
 
 .video { position: relative; height: 380px; border-radius: 8px; overflow: hidden; background: #04080f; }
-.video img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.5); }
+.video img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.7); }
 .rec { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--qa-danger); }
 .tbox { position: absolute; left: 55%; top: 30%; width: 90px; height: 130px; border: 2px solid var(--qa-success); box-shadow: 0 0 14px rgba(34,197,94,.5); }
 .tinfo { position: absolute; left: 100%; top: 0; margin-left: 8px; padding: 8px; font-size: 10px; line-height: 1.7; color: var(--qa-success); background: rgba(6,20,14,.85); border: 1px solid rgba(34,197,94,.4); border-radius: 4px; white-space: nowrap; }

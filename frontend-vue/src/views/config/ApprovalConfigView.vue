@@ -12,11 +12,12 @@
       <!-- 左:业务流程列表 -->
       <IndustrialPanel title="业务流程" class="flow-list">
         <template #extra><el-icon class="add" @click="ElMessage.info('新增流程开发中')"><Plus /></el-icon></template>
-        <el-input v-model="kw" placeholder="搜索流程..." size="small" class="mb" />
-        <div v-for="f in flows" :key="f.id" class="flow-item" :class="{ active: f.id === current.id }" @click="current = f">
+        <el-input v-model="kw" placeholder="搜索流程..." size="small" class="mb" clearable />
+        <div v-for="f in filteredFlows" :key="f.id" class="flow-item" :class="{ active: f.id === current.id }" @click="current = f">
           <div class="fi-head"><b>{{ f.name }}</b><span class="qa-tag" :class="f.published ? 'success' : 'info'">{{ f.published ? '已发布' : '草稿' }}</span></div>
           <div class="fi-meta">版本:{{ f.version }} · 更新:{{ f.updated }}</div>
         </div>
+        <p v-if="!filteredFlows.length" class="flow-empty">无匹配流程</p>
       </IndustrialPanel>
 
       <!-- 右:审批流层级可视化 -->
@@ -44,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, markRaw } from 'vue'
+import { ref, computed, onMounted, markRaw } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, User, Medal, WarningFilled } from '@element-plus/icons-vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
@@ -66,6 +67,11 @@ const flows = ref([
   ] },
 ])
 const current = ref(flows.value[0])
+// 关键词过滤业务流程列表(名称/版本)
+const filteredFlows = computed(() => {
+  const keyword = kw.value.trim().toLowerCase()
+  return flows.value.filter((f) => !keyword || `${f.name} ${f.version}`.toLowerCase().includes(keyword))
+})
 
 onMounted(async () => { try { const r = await configApi.get('approval'); if (r?.flows?.length) flows.value = r.flows } catch { /* keep demo */ } })
 async function save() { try { await configApi.save('approval', { flows: flows.value }); ElMessage.success('审批配置已保存') } catch { ElMessage.success('审批配置已保存(演示态)') } }
@@ -84,6 +90,7 @@ function reset() { ElMessage.info('已重置') }
 .fi-head { display: flex; justify-content: space-between; align-items: center; }
 .fi-head b { color: var(--qa-cyan); }
 .fi-meta { margin-top: 6px; font-size: 11px; color: var(--qa-text-muted); }
+.flow-empty { margin: 4px 0; font-size: 12px; color: var(--qa-text-muted); text-align: center; }
 .canvas { position: relative; min-height: 520px; padding: 20px; overflow-x: auto; }
 .grid-bg { position: absolute; inset: 0; background-image: radial-gradient(rgba(56,119,157,.15) 1px, transparent 1px); background-size: 22px 22px; }
 .flow-track { position: relative; z-index: 2; display: flex; align-items: center; gap: 4px; min-width: max-content; padding: 40px 0; }

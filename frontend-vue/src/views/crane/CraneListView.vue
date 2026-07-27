@@ -242,13 +242,29 @@ onMounted(async () => {
   try {
     const res = await craneApi.list({ page: 1, page_size: 100 })
     if (res?.list?.length) {
-      rows.value = res.list.map(c => ({
-        id: c.id || c.code, name: c.name, model: c.model, area: c.area,
-        risk: c.risk || 'normal', workState: c.workState || '正常运行',
-        installDate: c.installDate || '-', maker: c.maker || '-',
-        load: c.load ?? 0, loadMax: c.loadMax ?? 20, hookHeight: c.hookHeight ?? 0,
-        rotation: c.rotation ?? 0, wind: c.wind ?? 0, devices: [], linked: [],
-      }))
+      // 后端字段(work_zone/manufacturer/install_date/realtime)映射为页面字段,缺省时补演示值
+      const riskMap = { normal: 'normal', running: 'normal', online: 'normal', warning: 'warning', danger: 'danger', fault: 'danger', offline: 'offline' }
+      rows.value = res.list.map((c, i) => {
+        const rt = c.realtime || {}
+        const risk = riskMap[c.risk || c.status] || 'normal'
+        return {
+          id: c.code || c.id, name: c.name || `${i + 1}号起重机`, model: c.model || 'TC6015',
+          area: c.work_zone || c.area || ['A区-东侧', 'B区-西侧', '堆场区'][i % 3],
+          risk, workState: riskLabel(risk),
+          installDate: c.install_date || c.installDate || '2022-03-08',
+          maker: c.manufacturer || c.maker || ['中联重科', '徐工集团', '三一重工'][i % 3],
+          load: rt.load ?? c.load ?? (risk === 'offline' || risk === 'danger' ? 0 : Math.round((5 + (i * 3.7) % 12) * 10) / 10),
+          loadMax: rt.load_max ?? c.loadMax ?? 20.8,
+          hookHeight: rt.hook_height ?? c.hookHeight ?? (risk === 'offline' ? 0 : Math.round((20 + (i * 9) % 40) * 10) / 10),
+          rotation: rt.rotation ?? c.rotation ?? (risk === 'offline' ? 0 : (40 + i * 37) % 360),
+          wind: rt.wind ?? c.wind ?? (risk === 'offline' ? 0 : Math.round((3 + (i * 1.3) % 5) * 10) / 10),
+          devices: demoDevices[i % demoDevices.length],
+          linked: [
+            { name: `边缘计算盒 E-${10 + i}`, icon: Cpu, tone: risk === 'danger' ? 'danger' : risk === 'warning' ? 'warning' : 'success' },
+            { name: `球机摄像头 C-0${(i % 8) + 1}`, icon: VideoCamera, tone: risk === 'offline' ? 'muted' : 'success' },
+          ],
+        }
+      })
     }
   } catch { /* 回退演示数据 */ }
   current.value = rows.value[0] || null
@@ -257,7 +273,9 @@ onMounted(async () => {
 
 <style scoped>
 .stat-row.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.body-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; }
+.body-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: stretch; }
+.body-grid > .panel { display: flex; flex-direction: column; }
+.body-grid > .panel :deep(.body) { flex: 1; }
 
 .toolbar { display: flex; gap: 10px; width: 100%; padding: 8px 0; }
 .toolbar .search { width: 240px; }

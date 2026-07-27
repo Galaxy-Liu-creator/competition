@@ -36,7 +36,10 @@
       </el-menu>
 
       <div class="user-box">
-        <span class="avatar">{{ user?.avatar_text || '安' }}</span>
+        <span class="avatar">
+          <img v-if="user?.avatar" :src="user.avatar" alt="头像" />
+          <template v-else>{{ avatarChar }}</template>
+        </span>
         <div v-if="!collapsed">
           <strong>{{ user?.name || '安全管理员' }}</strong>
           <span>{{ user?.role || '系统管理员' }}</span>
@@ -65,7 +68,7 @@
         <div class="actions">
           <button type="button" class="site">
             <el-icon><Location /></el-icon>
-            华东能源基地 / 2#作业区
+            一号能源基地 / 2#作业区
           </button>
           <span class="wind mono" title="实时风速">
             <el-icon><WindPower /></el-icon> 5.2 m/s
@@ -80,7 +83,10 @@
             <el-icon><Sunny v-if="isDark" /><Moon v-else /></el-icon>
           </button>
           <el-dropdown trigger="click" popper-class="qa-user-dropdown" @command="onUserCommand">
-            <button type="button" class="avatar-btn" aria-label="个人中心">{{ user?.avatar_text || '安' }}</button>
+            <button type="button" class="avatar-btn" aria-label="个人中心">
+              <img v-if="user?.avatar" :src="user.avatar" alt="头像" />
+              <template v-else>{{ avatarChar }}</template>
+            </button>
             <template #dropdown>
               <div class="dd-head">
                 <strong>{{ user?.name || '安全管理员' }}</strong>
@@ -110,20 +116,23 @@ import {
   Fold, Expand, Bell, Location, WindPower, Odometer, SwitchButton,
   Sunny, Moon,
 } from '@element-plus/icons-vue'
-import { auth, loadMe, logout, preferences } from '@/auth'
-import { applyTheme, themeMode } from '@/theme'
+import { auth, avatarFallback, loadMe, logout, preferences, savePreferences } from '@/auth'
+import { activeTheme, applyTheme } from '@/theme'
 
 const route = useRoute()
 const router = useRouter()
 const collapsed = ref(preferences().sidebarCollapsed)
 const user = computed(() => auth.user)
-const isDark = ref(document.documentElement.dataset.theme !== 'light')
+const avatarChar = computed(() => avatarFallback(auth.user))
+const isDark = computed(() => activeTheme.value === 'dark')
 
 onMounted(loadMe)
 
 function toggleTheme() {
-  applyTheme(themeMode() === 'light' ? 'dark' : 'light')
-  isDark.value = document.documentElement.dataset.theme !== 'light'
+  const next = isDark.value ? 'light' : 'dark'
+  applyTheme(next)
+  // 同步到账号偏好,保证个人设置页与后端记录一致
+  savePreferences({ theme: next }).catch(() => {})
 }
 
 async function onLogout() {
@@ -210,9 +219,9 @@ aside {
 }
 .brand img {
   width: 36px; height: 36px; padding: 4px; object-fit: contain;
-  background: #102742; border: 1px solid var(--qa-border-strong); border-radius: 8px;
+  background: var(--qa-panel-2); border: 1px solid var(--qa-border-strong); border-radius: 8px;
 }
-.brand strong { display: block; font-size: 17px; letter-spacing: 3px; color: #fff; }
+.brand strong { display: block; font-size: 17px; letter-spacing: 3px; color: var(--qa-text); }
 .brand span { display: block; margin-top: 2px; font-size: 10px; color: var(--qa-text-muted); letter-spacing: 1px; white-space: nowrap; }
 
 .side-menu {
@@ -221,7 +230,7 @@ aside {
   --el-menu-text-color: var(--qa-text-2);
   --el-menu-hover-text-color: var(--qa-text);
   --el-menu-hover-bg-color: rgba(59, 130, 246, .08);
-  --el-menu-active-color: #fff;
+  --el-menu-active-color: var(--qa-text);
   --el-menu-item-height: 44px;
   --el-menu-sub-item-height: 38px;
   padding: 10px 8px;
@@ -243,7 +252,9 @@ aside {
 .avatar {
   display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0;
   background: var(--qa-blue); color: #fff; border-radius: 50%; font-size: 14px;
+  overflow: hidden;
 }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 .user-box div { min-width: 0; }
 .user-box strong { display: block; font-size: 13px; white-space: nowrap; }
 .user-box div span { display: block; font-size: 11px; color: var(--qa-text-muted); white-space: nowrap; }
@@ -289,7 +300,9 @@ aside {
   width: 34px; height: 34px; display: grid; place-items: center;
   background: var(--qa-blue); color: #fff; border-radius: 50%; font-size: 14px;
   cursor: pointer; border: 2px solid transparent; outline: none;
+  overflow: hidden; padding: 0;
 }
+.avatar-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .avatar-btn:hover { border-color: var(--qa-cyan); }
 
 main {

@@ -28,6 +28,7 @@ def query_list(
     page: int,
     page_size: int,
     order_desc: bool = True,
+    type_value: str | None = None,
 ) -> dict:
     stmt = select(model)
     count_stmt = select(func.count()).select_from(model)
@@ -38,6 +39,8 @@ def query_list(
         conditions.append(or_(*likes))
     if status and hasattr(model, "status"):
         conditions.append(getattr(model, "status") == status)
+    if type_value and hasattr(model, "type"):
+        conditions.append(getattr(model, "type") == type_value)
 
     for cond in conditions:
         stmt = stmt.where(cond)
@@ -72,11 +75,15 @@ def build_crud_router(
     def list_items(
         keyword: str | None = Query(None),
         status: str | None = Query(None),
+        type_: str | None = Query(None, alias="type"),
         page: int = Query(1, ge=1),
         page_size: int = Query(20, ge=1, le=200),
         db: Session = Depends(get_db),
     ):
-        return ok(query_list(db, model, keyword_fields, keyword, status, page, page_size))
+        return ok(query_list(
+            db, model, keyword_fields, keyword, status, page, page_size,
+            type_value=type_,
+        ))
 
     @router.get("/{item_id}", summary="详情")
     def get_item(item_id: int, db: Session = Depends(get_db)):

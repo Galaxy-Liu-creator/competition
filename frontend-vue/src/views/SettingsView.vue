@@ -5,8 +5,9 @@
       <div class="card">
         <div class="profile">
           <div class="big-av">
-            {{ user?.avatar_text || '安' }}
-            <span class="cam" title="更换头像" @click="msg('头像上传即将开放')"><el-icon><Camera /></el-icon></span>
+            <img v-if="user?.avatar" :src="user.avatar" alt="头像" />
+            <template v-else>{{ avatarChar }}</template>
+            <span class="cam" title="更换头像" @click="pickFile('direct')"><el-icon><Camera /></el-icon></span>
           </div>
           <div>
             <h3>{{ user?.name || '安全管理员' }}<span class="role">{{ user?.role || '系统管理员' }}</span></h3>
@@ -31,7 +32,7 @@
                 v-for="opt in themeOptions"
                 :key="opt.value"
                 class="tcard"
-                :class="{ on: prefs.theme === opt.value }"
+                :class="{ on: themeModeRef === opt.value }"
                 @click="setTheme(opt.value)"
               >
                 <div class="prev" :class="opt.value"></div>{{ opt.label }}
@@ -87,15 +88,32 @@
     <!-- 编辑资料弹窗 -->
     <el-dialog v-model="profileVisible" title="编辑资料" width="420px">
       <el-form label-width="72px">
+        <el-form-item label="头像">
+          <div class="av-edit">
+            <span class="av-prev">
+              <img v-if="profileForm.avatar" :src="profileForm.avatar" alt="头像预览" />
+              <template v-else>{{ formAvatarChar }}</template>
+            </span>
+            <div class="av-ops">
+              <div>
+                <el-button size="small" @click="pickFile('form')">上传图片</el-button>
+                <el-button v-if="profileForm.avatar" size="small" type="danger" text @click="profileForm.avatar = ''">移除</el-button>
+              </div>
+              <p class="av-tip">支持 JPG / PNG，未上传时显示姓名首字</p>
+            </div>
+          </div>
+        </el-form-item>
         <el-form-item label="姓名"><el-input v-model="profileForm.name" maxlength="16" /></el-form-item>
         <el-form-item label="邮箱"><el-input v-model="profileForm.email" /></el-form-item>
-        <el-form-item label="头像字"><el-input v-model="profileForm.avatar_text" maxlength="1" style="width: 80px" /></el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="profileVisible = false">取消</el-button>
         <el-button type="primary" :loading="saving" @click="saveProfile">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 头像文件选择(隐藏),资料卡相机角标与弹窗共用 -->
+    <input ref="fileInput" type="file" accept="image/*" class="file-hidden" @change="onFilePicked" />
 
     <!-- 修改密码弹窗 -->
     <el-dialog v-model="passwordVisible" title="修改密码" width="420px" @closed="resetPasswordForm">
@@ -116,10 +134,11 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Camera } from '@element-plus/icons-vue'
-import { auth, changePassword, loadMe, preferences, savePreferences, updateMe } from '@/auth'
-import { applyTheme } from '@/theme'
+import { auth, avatarFallback, changePassword, loadMe, preferences, savePreferences, updateMe } from '@/auth'
+import { applyTheme, themeModeRef } from '@/theme'
 
 const user = computed(() => auth.user)
+const avatarChar = computed(() => avatarFallback(auth.user))
 const prefs = reactive({ ...preferences() })
 
 const themeOptions = [
@@ -131,15 +150,17 @@ const themeOptions = [
 const profileVisible = ref(false)
 const passwordVisible = ref(false)
 const saving = ref(false)
-const profileForm = reactive({ name: '', email: '', avatar_text: '' })
+const profileForm = reactive({ name: '', email: '', avatar: '' })
 const passwordForm = reactive({ old: '', next: '', confirm: '' })
+const formAvatarChar = computed(() => profileForm.name?.[0] || avatarFallback(auth.user))
+
+const fileInput = ref(null)
+let pickTarget = 'direct' // 'direct' 资料卡角标直接上传 / 'form' 弹窗内仅预览
 
 onMounted(async () => {
   await loadMe()
   Object.assign(prefs, preferences())
 })
-
-function msg(text) { ElMessage.info(text) }
 
 async function save(patch) {
   try {
@@ -150,15 +171,65 @@ async function save(patch) {
 }
 
 function setTheme(mode) {
-  prefs.theme = mode
   applyTheme(mode)
   save({ theme: mode })
+}
+
+function pickFile(target) {
+  pickTarget = target
+  fileInput.value?.click()
+}
+
+// 本地图片 → 200×200 居中裁剪 → JPEG DataURL,控制存储体积
+function readAvatar(file) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) return reject(new Error('请选择图片文件'))
+    if (file.size > 5 * 1024 * 1024) return reject(new Error('图片不能超过 5MB'))
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const size = 200
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = size
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, size, size)
+      const scale = Math.max(size / img.width, size / img.height)
+      const w = img.width * scale
+      const h = img.height * scale
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h)
+      resolve(canvas.toDataURL('image/jpeg', 0.85))
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('图片读取失败'))
+    }
+    img.src = url
+  })
+}
+
+async function onFilePicked(event) {
+  const file = event.target.files?.[0]
+  event.target.value = '' // 允许再次选择同一文件
+  if (!file) return
+  try {
+    const dataUrl = await readAvatar(file)
+    if (pickTarget === 'form') {
+      profileForm.avatar = dataUrl
+    } else {
+      await updateMe({ avatar: dataUrl })
+      ElMessage.success('头像已更新')
+    }
+  } catch (error) {
+    ElMessage.error(error.response?.data?.message || error.message || '头像上传失败')
+  }
 }
 
 function openProfile() {
   profileForm.name = user.value?.name || ''
   profileForm.email = user.value?.email || ''
-  profileForm.avatar_text = user.value?.avatar_text || ''
+  profileForm.avatar = user.value?.avatar || ''
   profileVisible.value = true
 }
 
@@ -229,6 +300,7 @@ async function savePassword() {
   font-size: 28px; border-radius: 50%;
   box-shadow: 0 6px 18px rgba(59, 130, 246, .35);
 }
+.big-av > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .big-av .cam {
   position: absolute; right: -2px; bottom: -2px; width: 26px; height: 26px;
   display: grid; place-items: center; font-size: 13px;
@@ -276,4 +348,16 @@ async function savePassword() {
   height: 36px; padding: 0 12px; cursor: pointer;
 }
 .btn-line:hover { border-color: var(--qa-blue); color: var(--qa-blue); }
+
+/* 弹窗内头像编辑 */
+.file-hidden { display: none; }
+.av-edit { display: flex; align-items: center; gap: 14px; }
+.av-prev {
+  position: relative; width: 56px; height: 56px; flex-shrink: 0;
+  display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(135deg, var(--qa-blue), #1d4ed8); color: #fff;
+  font-size: 22px; border-radius: 50%;
+}
+.av-prev img { width: 100%; height: 100%; object-fit: cover; }
+.av-tip { margin: 6px 0 0; font-size: 12px; color: var(--qa-text-muted); line-height: 1.4; }
 </style>

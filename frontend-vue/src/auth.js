@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import request from './api/request'
+import { applyTheme, storedTheme, themeMode } from './theme'
 
 // 登录态模块:token/user 持久化 localStorage,后端不可用时回退演示账号
 const TOKEN_KEY = 'qa-token'
@@ -21,6 +22,7 @@ const DEMO_USER = {
   role: '系统管理员',
   email: 'admin@qingan.com',
   avatar_text: '安',
+  avatar: '',
   last_login_at: '',
   last_login_ip: '',
   preferences: { ...DEFAULT_PREFERENCES },
@@ -50,6 +52,22 @@ export function preferences() {
   return { ...DEFAULT_PREFERENCES, ...(auth.user?.preferences || {}) }
 }
 
+// 无头像图片时的文字回退:头像字 → 姓名首字 → 账户名首字
+export function avatarFallback(user) {
+  return user?.avatar_text || user?.name?.[0] || user?.username?.[0] || '安'
+}
+
+// 登录/注册后的主题策略:优先沿用本机上一次使用的日间/夜间模式(每次登录与上次保持一致),
+// 仅当本机从未选择过主题时才采用账号偏好;随后把生效模式回写账号,保证设置页与后端记录一致。
+// 回写走 updateMe(携带 Authorization),因此只在 token 已落盘后调用(persist 之后)。
+function syncThemeWithAccount() {
+  const mode = storedTheme() || auth.user?.preferences?.theme || themeMode()
+  if (mode !== themeMode()) applyTheme(mode)
+  if (auth.user && auth.user.preferences?.theme !== mode && localStorage.getItem(TOKEN_KEY)) {
+    updateMe({ preferences: { ...preferences(), theme: mode } }).catch(() => {})
+  }
+}
+
 export async function login(username, password, { remember = true } = {}) {
   try {
     const data = await request.post('/api/auth/login', { username, password })
@@ -63,10 +81,30 @@ export async function login(username, password, { remember = true } = {}) {
       err.isBiz = true
       throw err
     }
+    auth.user = {
+      ...DEMO_USER,
+      last_login_at: new Date().toLocaleString('zh-CN'),
+      preferences: { ...DEFAULT_PREFERENCES, theme: themeMode() },
+    }
     auth.token = 'demo-token'
-    auth.user = { ...DEMO_USER, last_login_at: new Date().toLocaleString('zh-CN') }
   }
   if (remember) persist()
+  syncThemeWithAccount()
+  return auth.user
+}
+
+export async function register({ username, password, name }) {
+  // 把登录页当前选择的主题作为新账号的初始偏好
+  const data = await request.post('/api/auth/register', {
+    username,
+    password,
+    name,
+    preferences: { ...DEFAULT_PREFERENCES, theme: themeMode() },
+  })
+  auth.token = data.token
+  auth.user = data.user
+  persist()
+  syncThemeWithAccount()
   return auth.user
 }
 

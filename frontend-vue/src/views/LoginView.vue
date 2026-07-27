@@ -17,9 +17,41 @@
       </div>
 
       <div class="feats">
-        <div class="feat"><i>📡</i>雷达感知 · 毫米级运动与距离测算</div>
-        <div class="feat"><i>🧊</i>三维空间风险建模 · 电子围栏预警</div>
-        <div class="feat"><i>📊</i>风险事件全流程闭环 · 数据可视化</div>
+        <div class="feat">
+          <i aria-hidden="true">
+            <!-- 雷达扫描 -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8.5" />
+              <path d="M12 7.5a4.5 4.5 0 0 1 4.5 4.5" />
+              <path d="M12 12 17.6 6.4" />
+              <circle cx="8.9" cy="9.3" r="1.2" fill="currentColor" stroke="none" />
+              <circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none" />
+              <path d="M12 3.5v1.4M20.5 12h-1.4M12 20.5v-1.4M3.5 12h1.4" opacity=".55" />
+            </svg>
+          </i>雷达感知 · 毫米级运动与距离测算
+        </div>
+        <div class="feat">
+          <i aria-hidden="true">
+            <!-- 三维空间建模 -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" />
+              <path d="M12 12 20 7.5M12 12 4 7.5M12 12v9" />
+              <circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none" />
+            </svg>
+          </i>三维空间风险建模 · 电子围栏预警
+        </div>
+        <div class="feat">
+          <i aria-hidden="true">
+            <!-- 数据闭环 -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M8 16H3v5" />
+              <path d="M9.3 14.2v-2.1M12 14.2V9.8M14.7 14.2v-3.2" stroke-width="1.7" />
+            </svg>
+          </i>风险事件全流程闭环 · 数据可视化
+        </div>
       </div>
     </section>
 
@@ -34,8 +66,14 @@
             注册<small>Create</small>
           </button>
         </div>
-        <button type="button" class="theme-btn" :title="isDark ? '切换日间模式' : '切换夜间模式'" @click="toggleTheme">
-          {{ isDark ? '☀️' : '🌙' }}
+        <button
+          type="button"
+          class="theme-btn"
+          :aria-label="isDark ? '切换日间模式' : '切换夜间模式'"
+          :title="isDark ? '切换日间模式' : '切换夜间模式'"
+          @click="toggleTheme"
+        >
+          <el-icon><Sunny v-if="isDark" /><Moon v-else /></el-icon>
         </button>
       </div>
 
@@ -78,48 +116,104 @@
 
         <template v-else>
           <h2>创建账号</h2>
-          <p class="hint">注册功能即将开放，演示环境请使用管理员账号登录。</p>
-          <div class="register-note">
-            演示账号：<b class="mono">admin</b> ／ 密码：<b class="mono">admin123</b>
+          <p class="hint">注册专属账号，开始体验智能吊装安全管理。</p>
+
+          <div class="field">
+            <label for="reg-username">账号</label>
+            <div class="control">
+              <el-icon><User /></el-icon>
+              <input
+                id="reg-username"
+                v-model.trim="regForm.username"
+                placeholder="3-20 位字母、数字或下划线"
+                autocomplete="username"
+              />
+            </div>
           </div>
-          <button class="submit" type="button" @click="tab = 'login'">返回登录</button>
+          <div class="field">
+            <label for="reg-name">姓名<em class="opt">选填，默认同账号</em></label>
+            <div class="control">
+              <el-icon><Postcard /></el-icon>
+              <input id="reg-name" v-model.trim="regForm.name" maxlength="16" placeholder="用于系统内展示与头像首字" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="reg-password">登录密码</label>
+            <div class="control">
+              <el-icon><Lock /></el-icon>
+              <input
+                id="reg-password"
+                v-model="regForm.password"
+                :type="showRegPassword ? 'text' : 'password'"
+                placeholder="至少 6 位"
+                autocomplete="new-password"
+              />
+              <el-icon class="eye" @click="showRegPassword = !showRegPassword"><View v-if="showRegPassword" /><Hide v-else /></el-icon>
+            </div>
+          </div>
+          <div class="field">
+            <label for="reg-confirm">确认密码</label>
+            <div class="control">
+              <el-icon><Lock /></el-icon>
+              <input
+                id="reg-confirm"
+                v-model="regForm.confirm"
+                type="password"
+                placeholder="再次输入密码"
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
+
+          <button class="submit" type="submit" :disabled="loading">
+            {{ loading ? '注册中…' : '注册并登录 →' }}
+          </button>
         </template>
       </form>
 
-      <p class="foot">还没有账号？<a href="#" @click.prevent="tab = 'register'">立即注册</a></p>
+      <p class="foot">
+        <template v-if="tab === 'login'">还没有账号？<a href="#" @click.prevent="tab = 'register'">立即注册</a></template>
+        <template v-else>已有账号？<a href="#" @click.prevent="tab = 'login'">立即登录</a></template>
+      </p>
       <p class="copyright">© 2026 擎安智吊 · 吊装安全运营平台</p>
     </section>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock, View, Hide } from '@element-plus/icons-vue'
-import { login, preferences } from '@/auth'
-import { applyTheme, themeMode } from '@/theme'
+import { User, Lock, View, Hide, Sunny, Moon, Postcard } from '@element-plus/icons-vue'
+import { login, preferences, register } from '@/auth'
+import { activeTheme, applyTheme } from '@/theme'
 
 const router = useRouter()
 const route = useRoute()
 
 const tab = ref('login')
 const showPassword = ref(false)
+const showRegPassword = ref(false)
 const remember = ref(true)
 const loading = ref(false)
 const form = reactive({ username: '', password: '' })
-const isDark = ref(document.documentElement.dataset.theme !== 'light')
+const regForm = reactive({ username: '', name: '', password: '', confirm: '' })
+const isDark = computed(() => activeTheme.value === 'dark')
 
 function toggleTheme() {
-  applyTheme(themeMode() === 'light' ? 'dark' : 'light')
-  isDark.value = document.documentElement.dataset.theme !== 'light'
+  applyTheme(isDark.value ? 'light' : 'dark')
 }
 
 function forgot() {
   ElMessage.info('请联系系统管理员重置密码')
 }
 
+function enter() {
+  router.replace(route.query.redirect || preferences().landingPage || '/workbench')
+}
+
 async function submit() {
+  if (tab.value === 'register') return doRegister()
   if (!form.username || !form.password) {
     ElMessage.warning('请输入账号和密码')
     return
@@ -128,9 +222,38 @@ async function submit() {
   try {
     await login(form.username, form.password, { remember: remember.value })
     ElMessage.success('登录成功，欢迎回来')
-    router.replace(route.query.redirect || preferences().landingPage || '/workbench')
+    enter()
   } catch (error) {
     ElMessage.error(error.response?.data?.message || error.message || '登录失败，请稍后再试')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function doRegister() {
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(regForm.username)) {
+    ElMessage.warning('账号需为 3-20 位字母、数字或下划线')
+    return
+  }
+  if (regForm.password.length < 6) {
+    ElMessage.warning('密码至少 6 位')
+    return
+  }
+  if (regForm.password !== regForm.confirm) {
+    ElMessage.warning('两次输入的密码不一致')
+    return
+  }
+  loading.value = true
+  try {
+    await register({ username: regForm.username, password: regForm.password, name: regForm.name })
+    ElMessage.success('注册成功，已自动登录')
+    enter()
+  } catch (error) {
+    if (error.response) {
+      ElMessage.error(error.response.data?.message || '注册失败，请稍后再试')
+    } else {
+      ElMessage.error('后端服务未启动，暂无法注册，请稍后再试')
+    }
   } finally {
     loading.value = false
   }
@@ -196,10 +319,13 @@ async function submit() {
   backdrop-filter: blur(6px); font-size: 14.5px; color: #dbe8f7;
 }
 .feat i {
-  display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0;
-  border-radius: 8px; font-style: normal; font-size: 17px;
-  background: rgba(59, 130, 246, .18); border: 1px solid rgba(59, 130, 246, .5);
+  display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0;
+  border-radius: 9px; font-style: normal; color: var(--qa-cyan);
+  background: linear-gradient(160deg, rgba(34, 211, 238, .16), rgba(59, 130, 246, .1));
+  border: 1px solid rgba(34, 211, 238, .45);
+  box-shadow: inset 0 0 12px rgba(34, 211, 238, .12);
 }
+.feat i svg { width: 19px; height: 19px; filter: drop-shadow(0 0 5px rgba(34, 211, 238, .5)); }
 
 /* ============ 右侧表单区 ============ */
 .pane {
@@ -223,12 +349,13 @@ async function submit() {
   background: linear-gradient(135deg, var(--qa-blue), #2563eb);
   color: #fff; box-shadow: 0 4px 14px rgba(59, 130, 246, .4);
 }
+/* 与主页面顶栏 .icon-btn 一致的主题切换按钮风格 */
 .theme-btn {
-  display: grid; place-items: center; width: 38px; height: 38px; cursor: pointer;
-  border-radius: 50%; border: 1px solid var(--qa-border); background: var(--qa-panel-2);
-  color: var(--qa-text-2); font-size: 17px;
+  position: relative; display: grid; place-items: center; width: 34px; height: 34px;
+  border: 0; background: transparent; color: var(--qa-text-2); cursor: pointer;
+  border-radius: 6px; font-size: 17px;
 }
-.theme-btn:hover { color: var(--qa-cyan); border-color: var(--qa-cyan); }
+.theme-btn:hover { background: var(--qa-panel-3); color: var(--qa-text); }
 
 .form-wrap { margin: auto 0; padding: 44px 0 24px; }
 .form-wrap h2 { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: 1px; color: var(--qa-text); }
@@ -236,6 +363,7 @@ async function submit() {
 
 .field { margin-top: 26px; }
 .field label { display: block; font-size: 13.5px; font-weight: 500; margin-bottom: 9px; color: var(--qa-text); }
+.field label .opt { font-style: normal; font-weight: 400; margin-left: 8px; font-size: 11.5px; color: var(--qa-text-muted); }
 .control {
   display: flex; align-items: center; gap: 10px;
   border: 1px solid var(--qa-border); background: var(--qa-bg-2);
@@ -256,12 +384,6 @@ async function submit() {
 .remember { display: flex; align-items: center; gap: 8px; color: var(--qa-text-2); cursor: pointer; }
 .remember input { accent-color: var(--qa-blue); width: 15px; height: 15px; }
 .row a { color: var(--qa-blue); text-decoration: none; }
-
-.register-note {
-  margin-top: 26px; padding: 14px 16px; font-size: 14px; color: var(--qa-text-2);
-  background: var(--qa-panel-2); border: 1px dashed var(--qa-border-strong); border-radius: 10px;
-}
-.register-note b { color: var(--qa-cyan); }
 
 .submit {
   width: 100%; margin-top: 28px; height: 52px; cursor: pointer;
