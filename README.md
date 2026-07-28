@@ -50,11 +50,11 @@ npm run dev              # http://127.0.0.1:5173
 
 ## 地图接入与离线回退
 
-地图区域由 `src/components/map/SiteMap.vue` 渲染。配置高德 Web Key 后,在
-`frontend-vue/.env.local`(勿提交 Git)配置:
+地图区域由 `src/components/map/SiteMap.vue` 渲染。高德 Web Key 演示值已随仓库放在
+`frontend-vue/.env` 中,clone 后地图开箱即用;如需换用自己的 key,在
+`frontend-vue/.env.local`(不入库,优先级更高)覆盖:
 
 ```env
-VITE_MAP_PROVIDER=amap
 VITE_AMAP_KEY=your-key
 VITE_AMAP_SECURITY_CODE=your-security-code
 ```

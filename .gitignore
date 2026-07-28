@@ -9,6 +9,8 @@ __pycache__/
 backend-python/app.db
 .env
 .env.local
+# 前端高德演示 key 有意随仓库分发(Web 端 key 本就打进前端包公开可见)
+!frontend-vue/.env
 
 # 设计稿与图片资源（体积较大，不纳入仓库）
 picture/
