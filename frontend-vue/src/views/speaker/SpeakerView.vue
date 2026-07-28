@@ -62,8 +62,11 @@
           <el-slider v-model="ctrlVolume" :disabled="current.status !== 'online'" />
           <div class="tts-label"><el-icon><ChatDotRound /></el-icon> 即时喊话 (TTS)</div>
           <div class="tts-row">
-            <el-input v-model="ttsText" placeholder="输入文字内容..." :disabled="current.status !== 'online'" />
-            <el-button type="primary" :disabled="current.status !== 'online'" @click="onBroadcast"><el-icon><Promotion /></el-icon></el-button>
+            <el-input
+              v-model="ttsText" placeholder="输入文字内容..."
+              :disabled="current.status !== 'online'" @keyup.enter="onBroadcast()"
+            />
+            <el-button type="primary" :disabled="current.status !== 'online'" @click="onBroadcast()"><el-icon><Promotion /></el-icon></el-button>
           </div>
           <el-button class="preset-btn" :disabled="current.status !== 'online'" @click="onBroadcast('预设标警音')">◎ 播放预设标警音</el-button>
           <div class="divider" />
@@ -87,7 +90,7 @@ import { ElMessage } from 'element-plus'
 import { Microphone, ChatDotRound, Promotion } from '@element-plus/icons-vue'
 import StatCard from '@/components/StatCard.vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
-import { speakerApi } from '@/api'
+import { speakerApi, configApi } from '@/api'
 
 const stats = reactive({ total: 48, onlineRate: 95.8, today: 124, alarm: 2 })
 const query = reactive({ keyword: '' })
@@ -128,14 +131,63 @@ async function load() {
 }
 function onSelect(row) { if (row) { current.value = row; ctrlVolume.value = row.volume || 0 } }
 watch(ctrlVolume, () => {}) // 滑条即时反馈由后端下发,演示态忽略
+
+// 即时喊话:输入为空时使用后台默认文本(configs/broadcast),接口不可用时兜底本地默认值
+const FALLBACK_DEFAULT_TTS = '请注意安全,吊装作业进行中,无关人员请勿靠近作业区域'
+const defaultTts = ref(FALLBACK_DEFAULT_TTS)
+async function loadDefaultTts() {
+  try {
+    const value = await configApi.get('broadcast')
+    if (value?.default_text) defaultTts.value = value.default_text
+  } catch { /* 兜底本地默认文本 */ }
+}
+// 语音播报:用浏览器 TTS 引擎实际发声,模拟音柱现场喊话效果
+function speak(text) {
+  try {
+    const synth = window.speechSynthesis
+    if (!synth) return
+    synth.cancel()
+    const utter = new SpeechSynthesisUtterance(text)
+    utter.lang = 'zh-CN'
+    const voice = synth.getVoices().find(v => v.lang && v.lang.startsWith('zh'))
+    if (voice) utter.voice = voice
+    utter.volume = Math.max(0.2, ctrlVolume.value / 100)
+    synth.speak(utter)
+  } catch { /* 浏览器不支持时静默降级 */ }
+}
+// 预设标警音:WebAudio 高低双音警笛
+function playAlarmTone() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const gain = ctx.createGain()
+    gain.gain.value = 0.08 * Math.max(0.2, ctrlVolume.value / 100)
+    gain.connect(ctx.destination)
+    const osc = ctx.createOscillator()
+    osc.type = 'square'
+    osc.connect(gain)
+    for (let i = 0; i < 6; i++) osc.frequency.setValueAtTime(i % 2 ? 620 : 880, ctx.currentTime + i * 0.25)
+    osc.start()
+    osc.stop(ctx.currentTime + 1.5)
+    osc.onended = () => ctx.close()
+  } catch { /* 浏览器不支持时静默降级 */ }
+}
 function onBroadcast(preset) {
-  const t = typeof preset === 'string' ? preset : ttsText.value
-  if (!t) return ElMessage.warning('请输入喊话内容')
-  ElMessage.success(`已向 ${current.value.code} 下发喊话:${t}`)
+  const isPreset = typeof preset === 'string'
+  const text = (isPreset ? preset : ttsText.value.trim()) || defaultTts.value
+  if (isPreset) playAlarmTone()
+  else speak(text)
+  const time = new Date().toTimeString().slice(0, 8)
+  // 写入播报记录与列表"最近播报",让喊话结果立即可见
+  if (!current.value.records) current.value.records = [...demoRec]
+  current.value.records.unshift({ type: 'man', title: '人工喊话', time, text })
+  current.value.lastText = text
+  current.value.lastTime = time
+  stats.today += 1
+  ElMessage.success(`已向 ${current.value.code} 下发喊话:${text}`)
   ttsText.value = ''
 }
 const onAdd = () => ElMessage.info('新增音柱表单开发中')
-onMounted(load)
+onMounted(() => { load(); loadDefaultTts() })
 </script>
 
 <style scoped>

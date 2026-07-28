@@ -34,11 +34,11 @@
             <p class="src"><el-icon><component :is="a.icon" /></el-icon>{{ a.source }}</p>
             <footer>
               <template v-if="a.level === 'danger'">
-                <el-button size="small">查看告警</el-button>
-                <el-button size="small" type="danger">发起喊话</el-button>
+                <el-button size="small" @click="viewAlarm(a)">查看告警</el-button>
+                <el-button size="small" type="danger" @click="openShout(a)">发起喊话</el-button>
               </template>
-              <el-button v-else-if="a.level === 'warning'" size="small" class="wfull">派单处置</el-button>
-              <el-button v-else size="small" text class="wfull">查看维修工单</el-button>
+              <el-button v-else-if="a.level === 'warning'" size="small" class="wfull" @click="dispatchAlarm(a)">派单处置</el-button>
+              <el-button v-else size="small" text class="wfull" @click="viewAlarm(a)">查看维修工单</el-button>
             </footer>
           </article>
         </div>
@@ -69,12 +69,52 @@
         </div>
       </IndustrialPanel>
     </section>
+
+    <!-- 告警详情弹窗 -->
+    <el-dialog v-model="alarmDialog" title="告警详情" width="440px">
+      <template v-if="activeAlarm">
+        <div class="dlg-head">
+          <span class="tag" :class="'dlg-' + activeAlarm.level">{{ activeAlarm.levelLabel }}</span>
+          <strong>{{ activeAlarm.title }}</strong>
+        </div>
+        <div class="dlg-kv">
+          <div><span>发生时间</span><b class="mono">今日 {{ activeAlarm.time }}</b></div>
+          <div><span>告警来源</span><b>{{ activeAlarm.source }}</b></div>
+          <div><span>处置状态</span><b>{{ activeAlarm.level === 'danger' ? '待处置' : '已派单跟进' }}</b></div>
+          <div><span>建议措施</span><b>{{ suggestOf(activeAlarm) }}</b></div>
+        </div>
+      </template>
+      <template #footer>
+        <el-button @click="alarmDialog = false">关闭</el-button>
+        <el-button type="primary" @click="gotoRiskEvents">前往处置</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 发起喊话弹窗 -->
+    <el-dialog v-model="shoutDialog" title="发起现场喊话" width="440px">
+      <el-form label-width="80px">
+        <el-form-item label="目标音柱">
+          <el-select v-model="shoutForm.speaker" style="width: 100%">
+            <el-option v-for="s in speakers" :key="s.value" :label="s.label" :value="s.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="喊话内容">
+          <el-input v-model="shoutForm.text" type="textarea" :rows="3" placeholder="输入喊话内容…" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="shoutDialog = false">取消</el-button>
+        <el-button type="danger" @click="sendShout">立即喊话</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 // 工作台:6 统计卡 + 鸟瞰图/告警队列 + 三分析面板;接口失败回退演示数据
 import { markRaw, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import {
   Van, Histogram, WarningFilled, CircleCloseFilled, Files, Aim,
   Aim as AimIcon, VideoCamera, Odometer,
@@ -110,6 +150,37 @@ const violations = ref([
 ])
 
 const trendOption = ref(buildTrend([5, 8, 6, 12, 9, 7, 11], [2, 3, 1, 5, 3, 2, 4]))
+
+// 告警队列操作:详情弹窗 / 喊话弹窗 / 派单
+const router = useRouter()
+const alarmDialog = ref(false)
+const shoutDialog = ref(false)
+const activeAlarm = ref(null)
+const speakers = [
+  { value: 'SPK-001', label: 'SPK-001 · 2# 塔吊臂端' },
+  { value: 'SPK-002', label: 'SPK-002 · 3# 塔吊基座' },
+  { value: 'SPK-005', label: 'SPK-005 · B区 出入口' },
+]
+const shoutForm = ref({ speaker: 'SPK-001', text: '' })
+
+function suggestOf(a) {
+  if (a.level === 'danger') return '立即启动现场喊话并派安全员前往核实'
+  if (a.level === 'warning') return '派单至责任班组限时整改'
+  return '通知运维人员检修,恢复设备通信'
+}
+function viewAlarm(a) { activeAlarm.value = a; alarmDialog.value = true }
+function gotoRiskEvents() { alarmDialog.value = false; router.push('/ledger/risk-events') }
+function openShout(a) {
+  activeAlarm.value = a
+  shoutForm.value = { speaker: 'SPK-001', text: `警告:${a.title},请相关人员立即撤离危险区域!` }
+  shoutDialog.value = true
+}
+function sendShout() {
+  if (!shoutForm.value.text.trim()) { ElMessage.warning('请输入喊话内容'); return }
+  shoutDialog.value = false
+  ElMessage.success(`已向 ${shoutForm.value.speaker} 下发喊话指令`)
+}
+function dispatchAlarm(a) { ElMessage.success(`已就「${a.title}」生成处置工单并派发至责任班组`) }
 
 function buildTrend(risk, major, dates = ['1日', '2日', '3日', '4日', '5日', '6日', '今日']) {
   return {
@@ -237,6 +308,18 @@ onMounted(async () => {
 .vbar { height: 10px; border-radius: 5px; background: var(--qa-panel-2); overflow: hidden; }
 .vbar i { display: block; height: 100%; border-radius: 5px; }
 .vrow b { text-align: right; font-size: 12px; }
+
+/* 弹窗 */
+.dlg-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.dlg-head .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; color: #fff; }
+.dlg-head .dlg-danger { background: var(--qa-danger); }
+.dlg-head .dlg-warning { background: var(--qa-warning); color: #1a1200; }
+.dlg-head .dlg-info { background: var(--qa-blue); }
+.dlg-head strong { font-size: 15px; }
+.dlg-kv { display: grid; gap: 10px; }
+.dlg-kv > div { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; }
+.dlg-kv span { color: var(--qa-text-2); flex-shrink: 0; }
+.dlg-kv b { text-align: right; }
 
 @media (max-width: 1400px) { .stat-row.six { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 1200px) { .mid { grid-template-columns: 1fr; } .bottom { grid-template-columns: 1fr; } }

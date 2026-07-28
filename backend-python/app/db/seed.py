@@ -180,6 +180,9 @@ CONFIGS = {
         "app": {"enabled": True, "receivers": ["安全部全员"]},
         "speaker_link": {"enabled": True, "trigger_levels": ["critical", "major"]},
     },
+    "broadcast": {
+        "default_text": "请注意安全,吊装作业进行中,无关人员请勿靠近作业区域",
+    },
 }
 
 

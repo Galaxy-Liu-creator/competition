@@ -53,20 +53,54 @@
 
         <div class="sect">远程维护操作</div>
         <div class="ops">
-          <el-button :icon="Upload">远程升级</el-button>
-          <el-button :icon="Document">查看日志</el-button>
+          <el-button :icon="Upload" @click="openUpgrade">远程升级</el-button>
+          <el-button :icon="Document" @click="openLogs">查看日志</el-button>
         </div>
         <el-button type="danger" plain class="reboot" :icon="RefreshRight" @click="reboot">强制重启设备</el-button>
       </IndustrialPanel>
     </section>
+
+    <!-- 远程升级弹窗 -->
+    <el-dialog v-model="upgradeDialog" :title="`远程升级 · ${current?.id || ''}`" width="440px" :close-on-click-modal="!upgrading">
+      <div class="up-kv">
+        <div><span>当前固件</span><b class="mono">{{ current?.firmware }}</b></div>
+        <div><span>目标固件</span><b class="mono c-cyan">{{ TARGET_FIRMWARE }}</b></div>
+        <div><span>升级包大小</span><b class="mono">86.4 MB</b></div>
+        <div><span>预计耗时</span><b class="mono">约 3 分钟</b></div>
+      </div>
+      <template v-if="upgrading || upgradePct >= 100">
+        <el-progress :percentage="upgradePct" :status="upgradePct >= 100 ? 'success' : ''" />
+        <p class="up-step">{{ upgradeStep }}</p>
+      </template>
+      <p v-else class="up-warn"><el-icon><WarningFilled /></el-icon>升级期间设备将暂停 AI 推理,请避开吊装高峰时段。</p>
+      <template #footer>
+        <el-button :disabled="upgrading" @click="upgradeDialog = false">关闭</el-button>
+        <el-button type="primary" :loading="upgrading" :disabled="upgradePct >= 100" @click="startUpgrade">
+          {{ upgradePct >= 100 ? '升级完成' : upgrading ? '升级中…' : '开始升级' }}
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 设备日志弹窗 -->
+    <el-dialog v-model="logDialog" :title="`设备日志 · ${current?.id || ''}`" width="640px">
+      <div class="log-box mono">
+        <p v-for="(l, i) in logs" :key="i" :class="'log-' + l.level">
+          <time>{{ l.time }}</time><em>[{{ l.level.toUpperCase() }}]</em>{{ l.text }}
+        </p>
+      </div>
+      <template #footer>
+        <el-button :icon="Refresh" @click="genLogs">刷新</el-button>
+        <el-button type="primary" @click="logDialog = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 // 边缘盒子:统计卡 + 监查列表 + 详情(资源趋势/进程/远程运维);edgeBoxApi 失败回退演示数据
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Box, Connection, Cpu, WarningFilled, Search, Filter, Upload, Document, RefreshRight } from '@element-plus/icons-vue'
+import { Box, Connection, Cpu, WarningFilled, Search, Filter, Upload, Document, RefreshRight, Refresh } from '@element-plus/icons-vue'
 import StatCard from '@/components/StatCard.vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import BaseChart from '@/components/BaseChart.vue'
@@ -104,6 +138,66 @@ async function reboot() {
   await ElMessageBox.confirm('确认强制重启该边缘设备?重启期间将短暂中断数据采集。', '强制重启', { type: 'warning' })
   ElMessage.success('已下发重启指令')
 }
+
+// 远程升级:确认后模拟分阶段进度,完成时更新固件版本号
+const TARGET_FIRMWARE = 'v2.5.0-stable'
+const upgradeDialog = ref(false)
+const upgrading = ref(false)
+const upgradePct = ref(0)
+const upgradeStep = ref('')
+let upgradeTimer = null
+function openUpgrade() {
+  if (current.value?.firmware === TARGET_FIRMWARE) { ElMessage.info('当前设备已是最新固件'); return }
+  upgradePct.value = 0
+  upgradeStep.value = ''
+  upgradeDialog.value = true
+}
+function startUpgrade() {
+  upgrading.value = true
+  const steps = [[15, '下载升级包…'], [45, '校验签名与完整性…'], [70, '写入固件分区…'], [90, '重启边缘服务…'], [100, '升级完成,设备已恢复在线']]
+  let i = 0
+  upgradeTimer = setInterval(() => {
+    const [pct, text] = steps[i]
+    upgradePct.value = pct
+    upgradeStep.value = text
+    i += 1
+    if (i >= steps.length) {
+      clearInterval(upgradeTimer)
+      upgradeTimer = null
+      upgrading.value = false
+      current.value.firmware = TARGET_FIRMWARE
+      ElMessage.success(`${current.value.id} 已升级至 ${TARGET_FIRMWARE}`)
+    }
+  }, 700)
+}
+onBeforeUnmount(() => { if (upgradeTimer) clearInterval(upgradeTimer) })
+
+// 查看日志:按设备生成确定性演示日志
+const logDialog = ref(false)
+const logs = ref([])
+function genLogs() {
+  const danger = current.value?.status === 'danger'
+  const base = [
+    ['info', 'edge_infer_engine 模型 crane-guard-v3 加载完成 (warmup 1.2s)'],
+    ['info', 'mqtt_client_pub 连接至 emqx://192.168.1.2:1883,QoS=1'],
+    ['info', 'video_stream_mux 拉流成功 rtsp://…/ch01,1080p@25fps'],
+    ['warn', 'sensor_data_agg 雷达帧间隔抖动 42ms(阈值 30ms)'],
+    ['info', '心跳上报正常,延迟 ' + (current.value?.latency ?? 12) + 'ms'],
+  ]
+  const dangerExtra = [
+    ['error', 'edge_infer_engine CPU 占用 94.2%,触发过载保护'],
+    ['warn', '消息队列积压 1.4k 条,启动本地缓存降级'],
+    ['error', '核心温度 82°C 超过告警阈值 75°C'],
+  ]
+  const all = danger ? [...base, ...dangerExtra] : base
+  const now = Date.now()
+  logs.value = all.map(([level, text], i) => ({
+    level,
+    time: new Date(now - (all.length - i) * 47000).toTimeString().slice(0, 8),
+    text,
+  }))
+}
+function openLogs() { genLogs(); logDialog.value = true }
 
 onMounted(async () => {
   try {
@@ -148,6 +242,25 @@ onMounted(async () => {
 .ops { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .ops .el-button { margin: 0; }
 .reboot { width: 100%; margin-top: 10px; }
+
+/* 升级弹窗 */
+.up-kv { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.up-kv > div { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--qa-border); border-radius: 6px; background: var(--qa-panel-2); }
+.up-kv span { font-size: 11px; color: var(--qa-text-2); }
+.up-kv b { font-size: 13px; }
+.up-step { margin: 10px 0 0; font-size: 12px; color: var(--qa-text-2); }
+.up-warn { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; font-size: 12px;
+  color: var(--qa-warning); background: var(--qa-panel-2); border: 1px solid rgba(234, 179, 8, .35); border-radius: 6px; }
+
+/* 日志弹窗 */
+.log-box { max-height: 380px; overflow: auto; padding: 12px 14px; border: 1px solid var(--qa-border); border-radius: 6px; background: var(--qa-panel-2); }
+.log-box p { display: flex; gap: 10px; margin: 0 0 8px; font-size: 12px; line-height: 1.5; color: var(--qa-text-2); }
+.log-box time { color: var(--qa-text-muted); flex-shrink: 0; }
+.log-box em { font-style: normal; flex-shrink: 0; }
+.log-info em { color: var(--qa-cyan); }
+.log-warn em { color: var(--qa-warning); }
+.log-error em { color: var(--qa-danger); }
+.log-error { color: var(--qa-danger); }
 
 @media (max-width: 1200px) { .stat-row.four { grid-template-columns: repeat(2, 1fr); } .body-grid { grid-template-columns: 1fr; } }
 </style>

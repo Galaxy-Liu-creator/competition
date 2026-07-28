@@ -62,7 +62,6 @@
           </el-table-column>
         </el-table>
 
-        <template #footer />
         <div class="pager">
           <el-pagination
             layout="prev, pager, next" background small
@@ -127,10 +126,36 @@
           </div>
         </div>
 
-        <template #footer />
-        <el-button class="track-btn" type="primary" plain>查看作业轨迹</el-button>
+        <el-button class="track-btn" type="primary" plain :icon="Location" @click="openTrack">查看作业轨迹</el-button>
       </IndustrialPanel>
     </section>
+
+    <!-- 作业轨迹弹窗 -->
+    <el-dialog v-model="trackDialog" :title="`作业轨迹 · ${current?.id || ''}`" width="640px">
+      <div class="track-meta">
+        <span>作业区:<b>{{ current?.area }}</b></span>
+        <span>轨迹时段:<b class="mono">08:00 - 10:45</b></span>
+        <span>吊装循环:<b class="mono">{{ trackPoints.length }} 次</b></span>
+      </div>
+      <div class="track-map">
+        <svg viewBox="0 0 560 300">
+          <!-- 网格 -->
+          <line v-for="i in 6" :key="'h' + i" class="grid" x1="0" :y1="i * 50 - 25" x2="560" :y2="i * 50 - 25" />
+          <line v-for="i in 11" :key="'v' + i" class="grid" :x1="i * 50 - 25" y1="0" :x2="i * 50 - 25" y2="300" />
+          <!-- 轨迹 -->
+          <polyline class="path" :points="trackPath" />
+          <g v-for="(p, i) in trackPoints" :key="i">
+            <circle :cx="p.x" :cy="p.y" r="5" class="pt" :class="{ start: i === 0, end: i === trackPoints.length - 1 }" />
+            <text :x="p.x + 9" :y="p.y - 8" class="pt-time mono">{{ p.time }}</text>
+          </g>
+        </svg>
+      </div>
+      <div class="track-legend">
+        <span><i class="lg start"></i>起始位置</span>
+        <span><i class="lg mid"></i>吊装停留点</span>
+        <span><i class="lg end"></i>当前位置</span>
+      </div>
+    </el-dialog>
 
     <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialog" :title="form.id ? '编辑吊车' : '新增吊车'" width="480px">
@@ -155,7 +180,7 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Van, Connection, Refresh, WarningFilled, Search, Plus, Close,
-  RefreshRight, WindPower, Cpu, VideoCamera, Odometer, Microphone,
+  RefreshRight, WindPower, Cpu, VideoCamera, Odometer, Microphone, Location,
 } from '@element-plus/icons-vue'
 import StatCard from '@/components/StatCard.vue'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
@@ -211,6 +236,21 @@ function riskLabel(risk) {
   return { normal: '正常运行', warning: '一般预警', danger: '严重故障', offline: '离线' }[risk] || risk
 }
 function handleSelect(row) { if (row) current.value = row }
+
+// 作业轨迹:按吊车 ID 生成确定性演示轨迹(无后端轨迹接口时保证可演示)
+const trackDialog = ref(false)
+const trackPoints = computed(() => {
+  if (!current.value) return []
+  const seed = [...current.value.id].reduce((s, ch) => s + ch.charCodeAt(0), 0)
+  const times = ['08:00', '08:35', '09:10', '09:40', '10:15', '10:45']
+  return times.map((time, i) => ({
+    x: Math.round(60 + ((seed * 7 + i * 89) % 440)),
+    y: Math.round(48 + ((seed * 13 + i * 67) % 210)),
+    time,
+  }))
+})
+const trackPath = computed(() => trackPoints.value.map(p => `${p.x},${p.y}`).join(' '))
+function openTrack() { trackDialog.value = true }
 
 // 弹窗
 const dialog = ref(false)
@@ -315,7 +355,25 @@ onMounted(async () => {
 .link-list { display: flex; flex-direction: column; gap: 8px; }
 .link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--qa-border); border-radius: 6px; background: var(--qa-panel-2); font-size: 13px; }
 .link i { margin-left: auto; }
-.track-btn { width: 100%; }
+.track-btn { width: 100%; margin-top: 14px; }
+
+/* 作业轨迹弹窗 */
+.track-meta { display: flex; gap: 24px; margin-bottom: 12px; font-size: 13px; color: var(--qa-text-2); }
+.track-meta b { color: var(--qa-text); margin-left: 4px; }
+.track-map { border: 1px solid var(--qa-border); border-radius: 6px; background: var(--qa-panel-2); overflow: hidden; }
+.track-map svg { display: block; width: 100%; }
+.track-map .grid { stroke: var(--qa-border); stroke-width: .5; opacity: .6; }
+.track-map .path { fill: none; stroke: var(--qa-cyan); stroke-width: 2; stroke-dasharray: 6 4; }
+.track-map .pt { fill: var(--qa-blue); }
+.track-map .pt.start { fill: var(--qa-success); }
+.track-map .pt.end { fill: var(--qa-danger); }
+.track-map .pt-time { font-size: 10px; fill: var(--qa-text-muted); }
+.track-legend { display: flex; gap: 18px; margin-top: 10px; font-size: 12px; color: var(--qa-text-2); }
+.track-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.track-legend .lg { width: 8px; height: 8px; border-radius: 50%; }
+.track-legend .lg.start { background: var(--qa-success); }
+.track-legend .lg.mid { background: var(--qa-blue); }
+.track-legend .lg.end { background: var(--qa-danger); }
 
 @media (max-width: 1200px) {
   .stat-row.four { grid-template-columns: repeat(2, 1fr); }

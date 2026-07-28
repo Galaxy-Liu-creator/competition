@@ -265,7 +265,11 @@ routers.append(audit_logs_router)
 
 # --------------------------- 系统配置（按 key） --------------------------- #
 configs_router = APIRouter(prefix="/api/configs", tags=["Configs 系统配置"])
-_CONFIG_KEYS = {"system", "approval", "threshold", "push"}
+_CONFIG_KEYS = {"system", "approval", "threshold", "push", "broadcast"}
+# 旧库未播种的配置键返回默认值,保证前端拿到可用配置
+_CONFIG_DEFAULTS = {
+    "broadcast": {"default_text": "请注意安全,吊装作业进行中,无关人员请勿靠近作业区域"},
+}
 
 
 @configs_router.get("/{key}", summary="获取配置")
@@ -274,7 +278,7 @@ def get_config(key: str, db: Session = Depends(get_db)):
     if row is None:
         if key not in _CONFIG_KEYS:
             raise BizError("配置项不存在", code=1004, http_status=404)
-        return ok({"key": key, "value": {}})
+        return ok({"key": key, "value": _CONFIG_DEFAULTS.get(key, {})})
     return ok({"key": row.key, "value": row.value})
 
 
