@@ -1,6 +1,6 @@
 <template>
   <div class="page radar">
-    <section class="layout">
+    <section class="layout page-fill">
       <!-- 左:雷达资产列表 -->
       <IndustrialPanel title="雷达资产列表">
         <template #extra>

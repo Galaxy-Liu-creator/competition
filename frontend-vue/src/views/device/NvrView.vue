@@ -15,7 +15,7 @@
       <StatCard label="异常通道" :value="stats.abnormal" suffix="需处理" accent="#ef4444" />
     </div>
 
-    <div class="main">
+    <div class="main page-fill">
       <IndustrialPanel title="设备清单" class="list-panel">
         <template #extra>
           <el-input v-model="query.keyword" placeholder="搜索设备ID/IP..." size="small" style="width: 200px" clearable @keyup.enter="applyFilter" @clear="applyFilter" />

@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="vc-main">
+    <div class="vc-main page-fill">
       <!-- 左:大类树 -->
       <IndustrialPanel title="大类树结构" class="tree-panel">
         <template #extra><el-icon class="add" @click="ElMessage.info('新增大类开发中')"><Plus /></el-icon></template>

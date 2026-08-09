@@ -13,7 +13,7 @@
       </div>
     </IndustrialPanel>
 
-    <section class="content">
+    <section class="content page-fill" :class="{ 'single-view': grid === 1 }">
       <IndustrialPanel class="videos">
         <div class="video-grid" :class="'g' + grid">
           <article v-for="(v, i) in visibleVideos" :key="v.name" class="feed">
@@ -119,6 +119,31 @@ const linked = [
 .detect { position: absolute; z-index: 2; left: 46%; top: 30%; width: 19%; height: 34%; padding: 5px; color: #fff; border: 1px solid var(--qa-danger); background: rgba(239, 68, 68, .1); font: 9px var(--qa-mono); }
 .detect.gold { left: 20%; top: 55%; width: 28%; height: 20%; border-color: var(--qa-gold); background: rgba(234, 179, 8, .1); }
 
+/* 一宫格切换为主画面模式：视频占满内容宽度，完整画面优先，遥测信息下沉但不丢失。 */
+.content.single-view { grid-template-columns: minmax(0, 1fr); }
+.single-view .videos { min-width: 0; }
+.single-view .video-grid.g1 .feed {
+  min-height: clamp(520px, calc(100dvh - 180px), 860px);
+  border-color: rgba(34, 211, 238, .5);
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .08), 0 16px 36px rgba(0, 0, 0, .2);
+}
+.single-view .video-grid.g1 .feed::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(2, 8, 18, .12), transparent 22%, transparent 72%, rgba(2, 8, 18, .42));
+  box-shadow: inset 0 0 42px rgba(1, 8, 18, .2);
+}
+.single-view .video-grid.g1 img.bg { filter: blur(22px) brightness(.42) saturate(.78); transform: scale(1.08); }
+.single-view .video-grid.g1 img.fg { filter: brightness(.9) saturate(.96) contrast(1.02); }
+.single-view .video-grid.g1 header { left: 16px; right: 16px; top: 16px; padding: 9px 12px; color: #eaf4ff; font-size: 12px; }
+.single-view .video-grid.g1 header time { color: #a9bdd4; }
+.single-view .video-grid.g1 footer { left: 18px; right: 18px; bottom: 15px; font-size: 12px; }
+.single-view .video-grid.g1 footer b { color: #a9bdd4; }
+.single-view .right { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
 .right { display: grid; gap: 14px; align-content: start; }
 .telemetry { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .telemetry > div { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--qa-border); background: var(--qa-panel-2); border-radius: 6px; }
@@ -132,7 +157,8 @@ const linked = [
   .right { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 800px) {
-  .video-grid.g4, .video-grid.g9, .right { grid-template-columns: 1fr; }
+  .video-grid.g4, .video-grid.g9, .right, .single-view .right { grid-template-columns: 1fr; }
   .filterbar { flex-wrap: wrap; }
+  .single-view .video-grid.g1 .feed { min-height: clamp(360px, 62dvh, 560px); }
 }
 </style>

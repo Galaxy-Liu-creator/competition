@@ -1,6 +1,6 @@
 <template>
   <div class="page devtype">
-    <section class="grid3">
+    <section class="grid3 page-fill">
       <!-- 左:分类目录 -->
       <IndustrialPanel>
         <template #header>

@@ -29,7 +29,7 @@
     </section>
 
     <!-- 底部三面板 -->
-    <section class="bottom">
+    <section class="bottom page-fill">
       <IndustrialPanel title="目标实时数据">
         <el-table :data="targets" size="small">
           <el-table-column label="目标 ID" min-width="90"><template #default="{ row }"><b class="mono" :class="{ 'c-gold': row.risk !== 'safe' }">{{ row.id }}</b></template></el-table-column>

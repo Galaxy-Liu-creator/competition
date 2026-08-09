@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <div class="ac-main">
+    <div class="ac-main page-fill">
       <!-- 左:业务流程列表 -->
       <IndustrialPanel title="业务流程" class="flow-list">
         <template #extra><el-icon class="add" @click="ElMessage.info('新增流程开发中')"><Plus /></el-icon></template>

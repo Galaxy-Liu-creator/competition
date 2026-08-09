@@ -1,6 +1,6 @@
 <template>
   <div class="page perimeter">
-    <section class="layout">
+    <section class="layout page-fill">
       <!-- 左:实时监控宫格 -->
       <IndustrialPanel class="grid-panel">
         <template #header>

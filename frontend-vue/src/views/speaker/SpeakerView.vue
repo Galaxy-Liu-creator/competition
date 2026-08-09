@@ -7,7 +7,7 @@
       <StatCard label="设备告警" :value="stats.alarm" suffix="台" accent="#ef4444" />
     </div>
 
-    <div class="main">
+    <div class="main page-fill">
       <IndustrialPanel title="设备列表" class="list-panel">
         <template #extra>
           <div class="ex">

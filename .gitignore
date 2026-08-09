@@ -19,9 +19,13 @@ docs/ui-mockups/
 
 # 工具与临时目录
 .playwright-mcp/
+.playwright-cli/
 .superpowers/
 .agents/
 .claude/
+
+# Playwright 截图与浏览器验证产物
+/output/playwright/
 
 # 编辑器与操作系统
 .vscode/

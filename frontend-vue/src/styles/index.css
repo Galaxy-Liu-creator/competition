@@ -165,7 +165,19 @@ button:focus-visible, a:focus-visible {
 /* 页面标准容器:视图根元素使用 */
 .page {
   display: flex; flex-direction: column; gap: 16px;
-  padding: 16px 20px 24px; min-height: 100%;
+  padding: 16px 20px; min-height: 100%;
+}
+
+/*
+ * 页面主内容统一吃满顶栏以下的剩余高度。
+ * page-fill 只标记每页的主网格，避免用固定视口高度逐页补丁；
+ * 直接放在 page 下的最后一个独立面板也会自然延伸到底部。
+ */
+.page > .page-fill,
+.page > .panel:last-of-type {
+  flex: 1 0 auto;
+  min-width: 0;
+  min-height: 0;
 }
 
 /* 统计卡行 */

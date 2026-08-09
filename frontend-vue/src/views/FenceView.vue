@@ -7,7 +7,7 @@
       <StatCard label="关联设备" :value="stats.devices" suffix="台" accent="#3b82f6" />
     </div>
 
-    <div class="fence-main">
+    <div class="fence-main page-fill">
       <IndustrialPanel title="围栏空间分布" class="map-panel">
         <template #extra>高德地图 · 实时渲染</template>
         <SiteMap />
@@ -60,10 +60,11 @@ function onToggle(f) { ElMessage.success(`「${f.name}」已${f.enabled ? '启�
 <style scoped>
 .fence-main { display: grid; grid-template-columns: minmax(0, 1.6fr) 360px; gap: 16px; align-items: stretch; }
 .fence-main > .panel { display: flex; flex-direction: column; }
-.fence-main > .panel :deep(.body) { flex: 1; }
+.fence-main > .panel :deep(.body) { flex: 1; min-height: 0; }
 .map-panel :deep(.body) { padding: 0; }
 .map-panel :deep(.map) { min-height: 560px; }
-.fence-list { display: flex; flex-direction: column; gap: 12px; max-height: 560px; overflow: auto; }
+.list-panel :deep(.body) { display: flex; flex-direction: column; }
+.fence-list { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 12px; overflow: auto; }
 .fence-card { padding: 14px; border: 1px solid var(--qa-border); border-radius: 8px; background: var(--qa-panel-2); }
 .fc-head { display: flex; justify-content: space-between; align-items: center; }
 .fc-head b { font-size: 14px; }

@@ -19,7 +19,7 @@
       <StatCard label="待处置" :value="kpi.pending" suffix="起" accent="#eab308" />
     </div>
 
-    <div class="chart-grid">
+    <div class="chart-grid page-fill">
       <IndustrialPanel :title="`${range} 日事件趋势`"><BaseChart :option="trendOption" height="280px" /></IndustrialPanel>
       <IndustrialPanel title="违章类型分布"><BaseChart :option="pieOption" height="280px" /></IndustrialPanel>
       <IndustrialPanel title="各作业区事件对比"><BaseChart :option="barOption" height="280px" /></IndustrialPanel>

@@ -7,7 +7,7 @@
       <StatCard label="消息积压总量" :value="stat.backlog" :icon="WarningFilled" accent="#eab308" hint="需要注意" />
     </section>
 
-    <section class="body-grid">
+    <section class="body-grid page-fill">
       <IndustrialPanel title="边缘设备监查列表">
         <template #extra>
           <div class="toolbar">

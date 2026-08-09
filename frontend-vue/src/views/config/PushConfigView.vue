@@ -42,7 +42,7 @@
       </el-table>
     </IndustrialPanel>
 
-    <div class="grid-bottom">
+    <div class="grid-bottom page-fill">
       <IndustrialPanel title="告警升级逻辑">
         <ul class="escalation">
           <li v-for="(e, i) in escalation" :key="i"><span class="tl-dot" :class="e.color" /><div class="e-body" :style="{ borderColor: e.border }"><b>{{ e.title }}</b><small>{{ e.desc }}</small></div></li>

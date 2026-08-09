@@ -46,7 +46,7 @@
     </section>
 
     <!-- 底部三面板 -->
-    <section class="bottom">
+    <section class="bottom page-fill">
       <IndustrialPanel title="设备健康状态">
         <div v-for="h in health" :key="h.label" class="health">
           <div class="hrow">

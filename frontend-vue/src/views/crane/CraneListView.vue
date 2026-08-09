@@ -8,7 +8,7 @@
       <StatCard label="高风险告警" :value="stat.highRisk" suffix="项" :icon="WarningFilled" accent="#ef4444" />
     </section>
 
-    <section class="body-grid">
+    <section class="body-grid page-fill">
       <!-- 左:工具栏 + 表格 -->
       <IndustrialPanel class="list-panel">
         <template #header>

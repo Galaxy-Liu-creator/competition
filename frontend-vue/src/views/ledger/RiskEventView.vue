@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="risk-main">
+    <div class="risk-main page-fill">
       <!-- 左:事件列表 -->
       <IndustrialPanel title="风险事件列表" class="list-panel">
         <template #extra><span class="mono text-muted">更新于 {{ now }}</span></template>
@@ -188,7 +188,9 @@ onMounted(load)
 </script>
 
 <style scoped>
-.risk-main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; }
+.risk-main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.risk-main > .panel :deep(.body) { flex: 1; min-height: 0; }
+.list-panel :deep(.body) { display: flex; flex-direction: column; }
 .filterbar { display: flex; gap: 10px; margin-bottom: 10px; }
 .detail { display: flex; flex-direction: column; gap: 12px; }
 .ev-id { font-size: 13px; }

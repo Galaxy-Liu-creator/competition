@@ -29,7 +29,7 @@
     </IndustrialPanel>
 
     <!-- 主体:列表 + 详情 -->
-    <div class="main">
+    <div class="main page-fill">
       <IndustrialPanel title="设备列表" class="list-panel">
         <template #extra>显示 {{ list.length }}/{{ stats.total }} 台</template>
         <el-table :data="list" highlight-current-row @current-change="onSelect" height="520">
