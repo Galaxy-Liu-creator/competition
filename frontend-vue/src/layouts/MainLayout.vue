@@ -3,9 +3,9 @@
     <!-- ============ 侧边栏 ============ -->
     <aside>
       <div class="brand">
-        <img src="/logo-512.png" alt="擎安智吊 Logo" />
+        <img src="/logo.svg" alt="油擎智安 Logo" />
         <div v-if="!collapsed">
-          <strong>擎安智吊</strong>
+          <strong>油擎智安</strong>
           <span>吊装安全运营平台</span>
         </div>
       </div>

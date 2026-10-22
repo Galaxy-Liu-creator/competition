@@ -1,4 +1,4 @@
-# 擎安智吊后端
+# 油擎智安后端
 
 本目录是 `new_project` 的独立 FastAPI 后端。参考项目
 `D:\University-Competition\Innovation_Entrepreneurship\project` 仅用于读取技术栈和接口风格，未被修改。

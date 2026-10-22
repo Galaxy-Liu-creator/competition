@@ -58,7 +58,7 @@ import { ElMessage } from 'element-plus'
 import IndustrialPanel from '@/components/IndustrialPanel.vue'
 import { configApi } from '@/api'
 
-const def = { sysName: '擎安智吊工业安全监控中枢', sysVersion: 'v4.2.0-ee.build2405', gisUrl: 'http://gis.internal.net:8080/geoserver', coord: 'GCJ02', protocol: 'WebRTC', hwAccel: true, mqtt: 'tcp://192.168.1.100:1883', maxMsgs: '5000' }
+const def = { sysName: '油擎智安工业安全监控中枢', sysVersion: 'v4.2.0-ee.build2405', gisUrl: 'http://gis.internal.net:8080/geoserver', coord: 'GCJ02', protocol: 'WebRTC', hwAccel: true, mqtt: 'tcp://192.168.1.100:1883', maxMsgs: '5000' }
 const form = reactive({ ...def })
 
 onMounted(async () => {

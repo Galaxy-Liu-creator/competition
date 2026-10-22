@@ -38,7 +38,7 @@ def test_health_checks_are_public_and_use_the_standard_envelope():
     root = assert_success(client().get("/"))
     health = assert_success(client().get("/health"))
 
-    assert root["name"] == "擎安智吊"
+    assert root["name"] == "油擎智安"
     assert root["docs"] == "/docs"
     assert health["status"] == "healthy"
 

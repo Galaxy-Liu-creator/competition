@@ -1,4 +1,4 @@
-"""擎安智吊 FastAPI 入口。"""
+"""油擎智安 FastAPI 入口。"""
 
 from contextlib import asynccontextmanager
 
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="擎安智吊 API",
+    title="油擎智安 API",
     description="吊装安全运营平台演示后端，提供态势总览与站点地图数据。",
     version=settings.APP_VERSION,
     lifespan=lifespan,

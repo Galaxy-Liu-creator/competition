@@ -11,7 +11,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    APP_NAME: str = "擎安智吊"
+    APP_NAME: str = "油擎智安"
     APP_VERSION: str = "1.0.0"
     CORS_ORIGINS: str = (
         "http://localhost:5173,http://127.0.0.1:5173,"

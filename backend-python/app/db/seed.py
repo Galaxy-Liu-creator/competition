@@ -152,11 +152,11 @@ AUDIT_LOGS = [
 
 CONFIGS = {
     "system": {
-        "platform_name": "擎安智吊 · 吊装安全巡检系统",
-        "logo_url": "/static/logo.png",
+        "platform_name": "油擎智安 · 吊装安全巡检系统",
+        "logo_url": "/logo.svg",
         "session_timeout_min": 30,
         "watermark_enabled": True,
-        "watermark_text": "擎安智吊",
+        "watermark_text": "油擎智安",
         "theme": "dark",
     },
     "approval": {

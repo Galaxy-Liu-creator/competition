@@ -3,10 +3,10 @@
     <!-- ============ 左侧品牌区 ============ -->
     <section class="hero">
       <div class="brand">
-        <div class="logo"><img src="/logo-512.png" alt="擎安智吊 Logo" /></div>
+        <div class="logo"><img src="/logo.svg" alt="油擎智安 Logo" /></div>
         <div>
-          <strong>擎安智吊</strong>
-          <span>吊装安全运营平台 · QING-AN SMART LIFT</span>
+          <strong>油擎智安</strong>
+          <span>吊装安全运营平台 · YOUQING SMART SAFETY</span>
         </div>
       </div>
 
@@ -175,7 +175,7 @@
         <template v-if="tab === 'login'">还没有账号？<a href="#" @click.prevent="tab = 'register'">立即注册</a></template>
         <template v-else>已有账号？<a href="#" @click.prevent="tab = 'login'">立即登录</a></template>
       </p>
-      <p class="copyright">© 2026 擎安智吊 · 吊装安全运营平台</p>
+      <p class="copyright">© 2026 油擎智安 · 吊装安全运营平台</p>
     </section>
   </div>
 </template>
