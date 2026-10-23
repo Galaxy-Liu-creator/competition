@@ -246,7 +246,7 @@ Get-ChildItem -LiteralPath $imageDir -Filter '*.png' | ForEach-Object {
         $graphics.DrawString('设备详情与状态', $smallBoldFont, $textBrush, ([single](408 * $scale)), ([single](128 * $scale)))
         $graphics.FillRectangle($cyanBrush, [int](405 * $scale), [int](154 * $scale), [int](2 * $scale), [int](50 * $scale))
         $detailRows = @(
-            @{ Y = 154; Label = '设备名称'; Value = '擎安智吊摄像机-01' },
+            @{ Y = 154; Label = '设备名称'; Value = '油擎智安摄像机-01' },
             @{ Y = 170; Label = '设备编号'; Value = 'CAM-HJ-0921' },
             @{ Y = 186; Label = 'IP 地址'; Value = '192.168.18.101' },
             @{ Y = 202; Label = '运行状态'; Value = '在线 · 正常' }
@@ -283,7 +283,7 @@ Get-ChildItem -LiteralPath $imageDir -Filter '*.png' | ForEach-Object {
     $sidebarBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 8, 20, 38))
     $borderPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(255, 37, 65, 95)), ([Math]::Max(1, [int][Math]::Round($scale)))
 
-    # 重建左上品牌区：使用原项目蓝金 Logo 与“擎安智吊”。
+    # 重建左上品牌区：使用原项目蓝金 Logo 与“油擎智安”。
     $graphics.FillRectangle($sidebarBrush, 0, 0, $sidebarWidth, $brandHeight)
     $graphics.DrawLine($borderPen, 0, $brandHeight - 1, $sidebarWidth, $brandHeight - 1)
     $logoX = [int][Math]::Round(5 * $scale)
@@ -296,7 +296,7 @@ Get-ChildItem -LiteralPath $imageDir -Filter '*.png' | ForEach-Object {
     $subFont = New-Object System.Drawing.Font 'Microsoft YaHei UI', ([single](4.4 * $scale)), ([System.Drawing.FontStyle]::Regular), ([System.Drawing.GraphicsUnit]::Pixel)
     $titleBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 234, 243, 255))
     $subBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 112, 143, 176))
-    $graphics.DrawString('擎安智吊', $titleFont, $titleBrush, ([single](25 * $scale)), ([single](6 * $scale)))
+    $graphics.DrawString('油擎智安', $titleFont, $titleBrush, ([single](25 * $scale)), ([single](6 * $scale)))
     $graphics.DrawString('吊装安全运营平台', $subFont, $subBrush, ([single](25 * $scale)), ([single](17 * $scale)))
 
     # 将左下角英文用户信息统一替换为中文。

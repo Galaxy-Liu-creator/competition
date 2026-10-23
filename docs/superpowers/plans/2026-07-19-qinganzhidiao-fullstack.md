@@ -1,8 +1,8 @@
-# 擎安智吊前后端首版实现计划
+# 油擎智安前后端首版实现计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在当前工作区的 `frontend-vue/` 和 `backend-python/` 中迁移并实现与 `picture/UI设计稿` 一致的擎安智吊吊装安全运营平台首版；`D:/University-Competition/Innovation_Entrepreneurship/project` 仅作只读参考，地图先使用可替换占位层，不配置高德 Key。
+**Goal:** 在当前工作区的 `frontend-vue/` 和 `backend-python/` 中迁移并实现与 `picture/UI设计稿` 一致的油擎智安吊装安全运营平台首版；`D:/University-Competition/Innovation_Entrepreneurship/project` 仅作只读参考，地图先使用可替换占位层，不配置高德 Key。
 
 **Architecture:** 前端继续使用 Vue 3 + Vite + Element Plus + ECharts，新增深色工业监控壳层、页面路由、指标卡片、告警面板和地图占位组件；后端继续使用 FastAPI，以现有 mock 数据为兼容基础，补充可复用的站点地图汇总、设备、围栏、告警和健康检查接口。地图组件通过 `mapAdapter` 风格接口预留未来高德实现。
 
@@ -10,7 +10,7 @@
 
 ---
 
-### Task 1: 建立前端设计令牌与擎安智吊运营壳层
+### Task 1: 建立前端设计令牌与油擎智安运营壳层
 
 **Files:**
 - Create/Modify: `frontend-vue/src/App.vue`
@@ -20,7 +20,7 @@
 
 - [ ] 读取现有布局、路由和主题样式，保留登录与既有页面入口。
 - [ ] 建立深海军蓝背景、蓝青主色、橙红告警色、细边框、密集信息面板等设计令牌。
-- [ ] 实现带 logo、“擎安智吊”标题、系统状态、当前时间和用户入口的顶部栏。
+- [ ] 实现带 logo、“油擎智安”标题、系统状态、当前时间和用户入口的顶部栏。
 - [ ] 实现左侧导航栏，支持态势总览、实时监测、事件闭环、电子围栏、设备中心、安全分析、规则策略、运维审计。
 - [ ] 确保 1920×1080 稿图比例下信息密度和对齐方式一致，并对 1280px 以下窗口提供收缩布局。
 
@@ -67,7 +67,7 @@
 **Files:**
 - Create/Modify: `frontend-vue/package.json`
 - Create/Modify: `frontend-vue/vite.config.js`
-- Create: `docs/擎安智吊前后端首版实现说明.md`
+- Create: `docs/油擎智安前后端首版实现说明.md`
 
 - [ ] 安装并记录新增依赖。
 - [ ] 启动 FastAPI 和 Vite，验证首页、路由、接口和地图占位渲染。

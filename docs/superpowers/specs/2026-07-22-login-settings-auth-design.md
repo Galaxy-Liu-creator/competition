@@ -5,7 +5,7 @@
 
 ## 背景
 
-擎安智吊（Vue 3 + Element Plus / FastAPI + SQLAlchemy + SQLite）现有 19 个业务页面，但：
+油擎智安（Vue 3 + Element Plus / FastAPI + SQLAlchemy + SQLite）现有 19 个业务页面，但：
 
 - 登录页与个人设置页仅有设计稿（`picture/Stitch生成稿-高清/20-登录页.png`、`21-个人设置页.png`）与 HTML 原型（`docs/design-mockups/login.html`、`settings.html`），Vue 端无路由无组件。
 - 后端零认证：无 JWT/session、无登录接口、无 User 表，所有 API 开放。
